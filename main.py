@@ -1,31 +1,10 @@
-import psycopg
+import repository_classes
 
-con = psycopg.connect(
-    dbname="Zavod",
-    user="postgres",
-    password="mysecretpassword",
-    host="localhost",
-    port="5432"
-)
-
-class Data_reader:
-    def __init__(self, table: str):
-        self.__table = table,
-        self.__cursor = con.cursor()
-
-    @property
-    def data(self):
-        return self.__table
-    
-    @data.setter
-    def data(self, new_table):
-        self.__table = new_table
-
-    def Lookup(self):
-        self.__cursor.execute(f'''SELECT * FROM {self.__table};''')
-        one_data = self.__cursor.fetchone()
-        print(one_data)
-
-data_reader = Data_reader("employee")
-print(data_reader.data)
-#data_reader.Lookup()
+workshop_repo = repository_classes.WorkshopRepository(1)
+workshop_repo.create()
+workshop_repo.workshop_id = 2
+workshop_repo.create()
+print(workshop_repo.read(1).__dict__)
+print(workshop_repo.read(2).__dict__)
+workshop_repo.update(2,3)
+print(workshop_repo.read(3).__dict__)
