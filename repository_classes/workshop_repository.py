@@ -1,5 +1,5 @@
 import psycopg
-import workshop
+import table_classes.workshop as workshop
 
 class WorkshopRepository:
     def __init__(self, connection: psycopg.Connection):
@@ -11,8 +11,9 @@ class WorkshopRepository:
         cursor.execute(f'''
         INSERT INTO workshop (workshop_id, workshop_name) VALUES ({workshop_id}, '{workshop_name}');
         ''')
-
+        
         self.__conn.commit()
+
         return workshop.Workshop(workshop_id, workshop_name)
 
 
@@ -22,7 +23,7 @@ class WorkshopRepository:
         cursor.execute(f'''
         SELECT * FROM workshop WHERE workshop_id = {workshop_id};
         ''')
-        
+
         return cursor.fetchall()
     
     def get_all(self):
@@ -32,7 +33,9 @@ class WorkshopRepository:
         SELECT * FROM workshop;
         ''')
         
-        return cursor.fetchall()
+        result = cursor.fetchall()
+                
+        return result
 
     def update(self, workshop_id, new_name):
         cursor = self.__conn.cursor()

@@ -1,4 +1,4 @@
-import workshop
+import table_classes.workshop as workshop
 
 class InnerStorageWorkshopRepository:
     def __init__(self, storage: dict[int, workshop.Workshop]):
