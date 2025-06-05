@@ -36,19 +36,18 @@ class WorkshopRepository:
             INSERT INTO workshop (workshop_id, workshop_name) VALUES (%s, %s);
             ''', (workshop_id, workshop_name)
             )
-            
             self.__connection.commit()
         except UniqueViolation:
             
             print('Запись с данным ID уже существует')
-            
+            self.__connection.commit()
             # Если метод может что-то не вернуть в силу каких-то причин, 
             # то указывай возвращаемый тип как опциональный (Optional)
             
             return None
-
+        
         return Workshop(workshop_id, workshop_name)
-
+        
 
     # Лучше всегда указывать типы для передаваемых переменных 
     # и для возвращаемых функций.
@@ -71,13 +70,13 @@ class WorkshopRepository:
     def get_all(self) -> List[Workshop]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT * FROM workshop ORDER BY workshop_ID''')
+        cursor.execute('''SELECT * FROM workshop ORDER BY workshop_ID;''')
         
         result = []        
         for record in cursor.fetchall():
             new_obj = Workshop(record[0], record[1])
-            result.append(new_obj)
-
+            result.append((new_obj.workshop_id,new_obj.name))  #Таким образом будет возращаться не список из объектов
+                                                               #а из кортежей, содержащих атрибуты этих объектов 
         return result
 
 
@@ -92,6 +91,8 @@ class WorkshopRepository:
         )
         
         self.__connection.commit()
+
+        return None
 
     # Как программист, который будет использоваться данный код, поймет, 
     # что удаление произошло успешно?
