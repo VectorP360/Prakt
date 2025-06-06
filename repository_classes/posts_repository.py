@@ -1,49 +1,75 @@
-import psycopg
-import table_classes.posts as posts
+from typing import List, Optional
+
+from psycopg import Connection
+
+from table_classes.posts import PostsOut, PostsIn
 
 class PostsRepository:
-    def __init__(self, connection: psycopg.Connection):
-        self.__conn = connection
+    def __init__(self, connection: Connection):
+        self.__connection = connection
 
-    def create(self, post_id: int, post_name: str):
-        cursor = self.__conn.cursor()
+    def create(self, post_name: str)-> PostsIn:
+        cursor = self.__connection.cursor()
 
-        cursor.execute(f'''
-        INSERT INTO posts (post_id, post_name) VALUES ({post_id}, '{post_name}');
-        ''')
-
-        self.__conn.commit()
-        return posts.Posts(post_id, post_name)
-
-
-    def get_by_ID(self, post_id):
-        cursor = self.__conn.cursor()
-
-        cursor.execute(f'''
-        SELECT * FROM posts WHERE post_id = {post_id};
-        ''')
+        cursor.execute(
+        '''
+        INSERT INTO posts (post_name) VALUES (%s)
+        ON CONFLICT (post_id) DO NOTHING
+        ''', (post_name,)
+        )
+        self.__connection.commit()
         
-        return cursor.fetchall()
+        return PostsIn(post_name)
+        
+
+    def get_by_ID(self, post_id: str) -> Optional[PostsOut]:
+        cursor = self.__connection.cursor()
+
+        cursor.execute('''SELECT post_id, post_name FROM posts WHERE post_ID = %s''', (post_id,))
+
+        fetched_row = cursor.fetchone()
+        
+        if fetched_row:
+            return PostsOut(fetched_row[0], fetched_row[1])
+        else:
+            return None
     
-    def get_all(self):
-        cursor = self.__conn.cursor()
+    
+    def get_all(self) -> List[PostsOut]:
+        cursor = self.__connection.cursor()
 
-        cursor.execute(f'''
-        SELECT * FROM posts;
-        ''')
+        cursor.execute('''SELECT post_id, post_name FROM posts ORDER BY post_ID;''')
         
-        return cursor.fetchall()
+        result = []        
+        for record in cursor.fetchall():
+            new_obj = PostsOut(record[0], record[1])
+            result.append(new_obj)  
+        return result
 
-    def update(self, post_id, new_name):
-        cursor = self.__conn.cursor()
 
-        cursor.execute(f'''
-        UPDATE posts SET post_name = '{new_name}' WHERE post_id = {post_id}
-        ''')
-        self.__conn.commit()
+    def update(self, post_id: str, new_name: str) -> Optional[PostsOut]:
+        cursor = self.__connection.cursor()
 
-    def delete(self, post_id: int):
-        cursor = self.__conn.cursor()
+        cursor.execute(
+        '''
+        UPDATE posts SET post_name = %s WHERE post_id = %s
+        RETURNING post_id, post_name;''', (new_name, post_id,)
+        )
 
-        cursor.execute(f'''DELETE FROM posts WHERE post_ID = {post_id} ''')
-        self.__conn.commit()
+        self.__connection.commit()
+
+        fetched_row = cursor.fetchone()
+
+        if fetched_row:
+            return PostsOut(fetched_row[0], fetched_row[1])
+        else:
+            return None
+
+
+    def delete(self, post_id: int) -> bool:
+        cursor = self.__connection.cursor()
+        
+        cursor.execute('''DELETE FROM posts WHERE post_ID = %s''', (post_id,))
+        self.__connection.commit()
+
+        return bool(cursor.rowcount)

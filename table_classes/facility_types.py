@@ -1,4 +1,8 @@
-class FacilityTypes:
+class FacilityTypesOut:
     def __init__(self, type_ID: int, type_name: str):
         self.type_ID = type_ID
+        self.type_name = type_name
+
+class FacilityTypesIn:
+    def __init__(self, type_name: str):
         self.type_name = type_name

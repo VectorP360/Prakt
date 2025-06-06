@@ -1,49 +1,80 @@
-import psycopg
-import table_classes.scada_scheme as scada_scheme
+from typing import List, Optional
 
-class SCADARepository:
-    def __init__(self, connection: psycopg.Connection):
-        self.__conn = connection
+from psycopg import Connection
 
-    def create(self, scheme_id: int, scheme_name: str):
-        cursor = self.__conn.cursor()
+from table_classes.scada_scheme import ScadaSchemeOut, ScadaSchemeIn
 
-        cursor.execute(f'''
-        INSERT INTO scada_scheme (scheme_id, scheme_name) VALUES ({scheme_id}, '{scheme_name}');
-        ''')
+class ScadaSchemeRepository:
+    def __init__(self, connection: Connection):
+        self.__connection = connection
 
-        self.__conn.commit()
-        return scada_scheme.SCADA_scheme(scheme_id, scheme_name)
+    def create(self, scheme_name: str)-> ScadaSchemeIn:
+        cursor = self.__connection.cursor()
 
-
-    def get_by_ID(self, scheme_id):
-        cursor = self.__conn.cursor()
-
-        cursor.execute(f'''
-        SELECT * FROM scada_scheme WHERE scheme_id = {scheme_id};
-        ''')
+        cursor.execute(
+        '''
+        INSERT INTO scada_scheme (scheme_name) VALUES (%s)
+        ON CONFLICT (scheme_id) DO NOTHING
+        ''', (scheme_name,)
+        )
+        self.__connection.commit()
         
-        return cursor.fetchall()
+        return ScadaSchemeIn(scheme_name)
+        
+
+    def get_by_ID(self, scheme_id: str) -> Optional[ScadaSchemeOut]:
+        cursor = self.__connection.cursor()
+
+        cursor.execute('''SELECT scheme_id, scheme_name FROM scada_scheme WHERE scheme_ID = %s''', (scheme_id,))
+
+        fetched_row = cursor.fetchone()
+        
+        if fetched_row:
+            return ScadaSchemeOut(fetched_row[0], fetched_row[1])
+        else:
+            return None
     
-    def get_all(self):
-        cursor = self.__conn.cursor()
+    
+    def get_all(self) -> List[ScadaSchemeOut]:
+        cursor = self.__connection.cursor()
 
-        cursor.execute(f'''
-        SELECT * FROM scada_scheme;
-        ''')
+        cursor.execute('''SELECT scheme_id, scheme_name FROM scada_scheme ORDER BY scheme_ID;''')
         
-        return cursor.fetchall()
+        result = []        
+        for record in cursor.fetchall():
+            new_obj = ScadaSchemeOut(record[0], record[1])
+            result.append(new_obj)  
+        return result
 
-    def update(self, scheme_id, new_name):
-        cursor = self.__conn.cursor()
 
-        cursor.execute(f'''
-        UPDATE scada_scheme SET scheme_name = '{new_name}' WHERE scheme_id = {scheme_id}
-        ''')
-        self.__conn.commit()
+    def update(self, scheme_id: str, new_name: str) -> Optional[ScadaSchemeOut]:
+        cursor = self.__connection.cursor()
 
-    def delete(self, scheme_id: int):
-        cursor = self.__conn.cursor()
+        cursor.execute(
+        '''
+        UPDATE scada_scheme SET scheme_name = %s WHERE scheme_id = %s
+        RETURNING scheme_id, scheme_name;''', (new_name, scheme_id,)
+        )
 
-        cursor.execute(f'''DELETE FROM scada_scheme WHERE scheme_ID = {scheme_id} ''')
-        self.__conn.commit()
+        self.__connection.commit()
+
+        fetched_row = cursor.fetchone()
+
+        if fetched_row:
+            return ScadaSchemeOut(fetched_row[0], fetched_row[1])
+        else:
+            return None
+
+
+    def delete(self, scheme_id: int) -> Optional[ScadaSchemeOut]:
+        cursor = self.__connection.cursor()
+        
+        cursor.execute('''DELETE FROM scada_scheme WHERE scheme_ID = %s''', (scheme_id,))
+        self.__connection.commit()
+        cursor.execute('''SELECT scheme_id FROM scada_scheme WHERE scheme_id = %s''',(scheme_id,))
+        fetchet_row = cursor.fetchone()
+
+        if fetchet_row:
+            return ScadaSchemeOut(fetchet_row[0], fetchet_row[1])
+        else:
+            return None
