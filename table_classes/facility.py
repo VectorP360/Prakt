@@ -8,7 +8,7 @@ class FacilityOut:
         self.name = name
         self.type = type
         self.workshop = workshop
-        self.scada_schema = scada_schema
+        self.scada_scheme = scada_schema
 
 class FacilityIn:
     def __init__(self, name: str, type: FacilityTypesOut, workshop: WorkshopOut, scada_schema: ScadaSchemeOut):

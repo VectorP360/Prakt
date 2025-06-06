@@ -16,7 +16,7 @@ class FacilityRepository:
         '''
         INSERT INTO facility (facility_name, type_id, workshop_id, scada_scheme) VALUES (%s,%s,%s,%s)
         RETURNING facility_id, facility_name,type_id, workshop_id, scada_scheme
-        ''', (new_facility.name, new_facility.type.type_ID, new_facility.workshop.workshop_id, new_facility.scada_schema.scheme_ID)
+        ''', (new_facility.name, new_facility.type.type_ID, new_facility.workshop.workshop_id, new_facility.scada_schema.scheme_ID,)
         )
         self.__connection.commit()
         
@@ -34,12 +34,18 @@ class FacilityRepository:
     def get_by_ID(self, facility_id: str) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT workshop_id, workshop_name FROM workshop WHERE workshop_ID = %s''', (facility_id,))
+        cursor.execute('''SELECT facility_id, facility_name, type_id, workshop_id, scada_scheme FROM facility WHERE facility_ID = %s''', (facility_id,))
 
         fetched_row = cursor.fetchone()
         
         if fetched_row:
-            return FacilityOut(fetched_row[0], fetched_row[1], type = fetched_row[2], workshop = fetched_row[3], scada_schema = fetched_row[4])
+            return FacilityOut(
+                fetched_row[0],
+                fetched_row[1], 
+                type = fetched_row[2], 
+                workshop = fetched_row[3], 
+                scada_schema = fetched_row[4]
+                )
         else:
             return None
     
@@ -48,39 +54,51 @@ class FacilityRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                       SELECT f.facility_id, f.facility_name, t.type_id, t.type_name, w.workshop_id, w.workshop_name, s.scheme_id, s.scheme_name
-                       FROM facility as f
-                       ORDER BY facility_ID
-                       USING JOIN facility_types as t ON t.type_id = f.type_id
-                       USING JOIN workshop as w ON w.workshop_id = f.workshop_id
-                       USING JOIN scada_scheme as s ON s.scheme_id = f.scheme_id
+                        SELECT facility_id, facility_name, type_id, type_name, workshop_id, 
+                            workshop.workshop_name, scada_scheme.scheme_id, scada_scheme.scheme_name
+                        FROM facility
+                        JOIN facility_types USING (type_id)
+                        JOIN workshop USING (workshop_id)
+                        JOIN scada_scheme ON facility.scada_scheme = scada_scheme.scheme_id
+                        ORDER BY facility_ID;
                        ''')
         
         result = []        
         for record in cursor.fetchall():
-            type = FacilityTypesOut()
-            workshop = WorkshopOut()
-            scada_scheme = ScadaSchemeOut()
+            type = FacilityTypesOut(record[2],record[3])
+            workshop = WorkshopOut(record[4],record[5])
+            scada_scheme = ScadaSchemeOut(record[6],record[7])
             new_obj = FacilityOut(record[0], record[1],type = type, workshop = workshop, scada_schema = scada_scheme)
             result.append(new_obj)  
         return result
 
 
-    def update(self, workshop_id: str, new_name: str) -> Optional[WorkshopOut]:
+    def update(self, facility_id, new_facility: FacilityIn) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
         '''
-        UPDATE workshop SET workshop_name = %s WHERE workshop_id = %s
-        RETURNING workshop_id, workshop_name;''', (new_name, workshop_id,)
-        )
+        UPDATE facility SET facility_name = %s, type_id = %s, workshop_id = %s, scada_scheme = %s
+        WHERE facility_id = %s
 
+        RETURNING facility_id, facility_name
+        ''', 
+        (new_facility.name, new_facility.type.type_ID, new_facility.workshop.workshop_id, new_facility.scada_schema.scheme_ID, facility_id,)
+        )
         self.__connection.commit()
 
         fetched_row = cursor.fetchone()
 
         if fetched_row:
-            return WorkshopOut(fetched_row[0], fetched_row[1])
+            type = new_facility.type
+            workshop = new_facility.workshop
+            scada_scheme = new_facility.scada_schema
+            return FacilityOut(
+                fetched_row[0], 
+                fetched_row[1], 
+                type, 
+                workshop, 
+                scada_scheme)
         else:
             return None
 
