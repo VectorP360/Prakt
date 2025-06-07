@@ -10,7 +10,7 @@ class EmployeeRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, new_employee: EmployeeIn)-> FacilityOut:
+    def create(self, new_employee: EmployeeIn)-> EmployeeOut:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -61,7 +61,7 @@ class EmployeeRepository:
             return None
     
     
-    def get_all(self) -> List[FacilityOut]:
+    def get_all(self) -> List[EmployeeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
