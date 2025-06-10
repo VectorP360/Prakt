@@ -1,5 +1,5 @@
-from table_classes.facility import FacilityOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
-from table_classes.posts import PostsOut
+from schemas.facility import FacilityOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
+from schemas.posts import PostsOut
 
 class EmployeeOut:
     def __init__(self, employee_id: int, surname:str, name:str, fathersname:str, facility:FacilityOut, post: PostsOut, hire_date:str, employee_login:str, employee_password:str):

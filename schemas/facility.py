@@ -1,6 +1,6 @@
-from table_classes.facility_types import FacilityTypeOut
-from table_classes.workshop import WorkshopOut
-from table_classes.scada_scheme import ScadaSchemeOut
+from schemas.facility_types import FacilityTypeOut
+from schemas.workshop import WorkshopOut
+from schemas.scada_scheme import ScadaSchemeOut
 
 class FacilityOut:
     def __init__(self, facility_id: int, name: str, type: FacilityTypeOut, workshop: WorkshopOut, scada_scheme: ScadaSchemeOut):
