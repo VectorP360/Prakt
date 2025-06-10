@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.posts import PostsOut, PostsIn
+from schemas.posts import PostsOut, PostsIn
 
 class PostsRepository:
     def __init__(self, connection: Connection):

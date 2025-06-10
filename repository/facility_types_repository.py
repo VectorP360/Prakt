@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.facility_types import FacilityTypeOut, FacilityTypeOut
+from schemas.facility_types import FacilityTypeOut, FacilityTypeOut
 
 class FacilityTypesRepository:
     def __init__(self, connection: Connection):

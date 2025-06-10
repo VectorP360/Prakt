@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.scada_scheme import ScadaSchemeOut, ScadaSchemeIn
+from schemas.scada_scheme import ScadaSchemeOut, ScadaSchemeIn
 
 class ScadaSchemeRepository:
     def __init__(self, connection: Connection):

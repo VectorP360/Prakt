@@ -3,7 +3,7 @@ from datetime import date
 
 from psycopg import Connection
 
-from table_classes.employee import EmployeeOut, EmployeeIn, FacilityOut, PostsOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
+from schemas.employee import EmployeeOut, EmployeeIn, FacilityOut, PostsOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
 
 
 class EmployeeRepository:

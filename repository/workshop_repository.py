@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.workshop import WorkshopOut, WorkshopIn
+from schemas.workshop import WorkshopOut, WorkshopIn
 
 class WorkshopRepository:
     def __init__(self, connection: Connection):

@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.facility import FacilityOut, FacilityIn, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
+from schemas.facility import FacilityOut, FacilityIn, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
 
 
 class FacilityRepository:
