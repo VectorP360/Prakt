@@ -3,7 +3,7 @@ from datetime import date
 
 from psycopg import Connection
 
-from table_classes.employee import EmployeeOut, EmployeeIn, FacilityOut, PostsOut, FacilityTypesOut, WorkshopOut, ScadaSchemeOut
+from table_classes.employee import EmployeeOut, EmployeeIn, FacilityOut, PostsOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
 
 
 class EmployeeRepository:
@@ -86,7 +86,7 @@ class EmployeeRepository:
                 facility = FacilityOut(
                     facility_id = record[4],
                     name = record[5],
-                    type = FacilityTypesOut(
+                    type = FacilityTypeOut(
                         type_ID = record[6],
                         type_name = record[7]
                     ),

@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.facility import FacilityOut, FacilityIn, FacilityTypesOut, WorkshopOut, ScadaSchemeOut
+from table_classes.facility import FacilityOut, FacilityIn, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
 
 
 class FacilityRepository:
@@ -65,7 +65,7 @@ class FacilityRepository:
         
         result = []        
         for record in cursor.fetchall():
-            type = FacilityTypesOut(record[2],record[3])
+            type = FacilityTypeOut(record[2],record[3])
             workshop = WorkshopOut(record[4],record[5])
             scada_scheme = ScadaSchemeOut(record[6],record[7])
             new_obj = FacilityOut(record[0], record[1],type = type, workshop = workshop, scada_schema = scada_scheme)
@@ -73,12 +73,12 @@ class FacilityRepository:
         return result
 
 
-    def update(self, facility_id, new_facility: FacilityIn) -> Optional[FacilityOut]:
+    def update(self, facility_id: int, new_facility: FacilityIn) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
         '''
-        UPDATE facility SET facility_name = %s, type_id = %s, workshop_id = %s, scada_scheme = %s
+        UPDATE facility SET facility_name = %s, type_id = %s, workshop_id = %s, scada_scheme.scheme_id = %s
         WHERE facility_id = %s
 
         RETURNING facility_id, facility_name

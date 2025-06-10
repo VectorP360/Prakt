@@ -2,27 +2,30 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from table_classes.facility_types import FacilityTypesOut, FacilityTypesIn
+from table_classes.facility_types import FacilityTypeOut, FacilityTypeOut
 
 class FacilityTypesRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, type_name: str)-> FacilityTypesIn:
+    def create(self, type_name: str)-> FacilityTypeOut:
         cursor = self.__connection.cursor()
 
         cursor.execute(
         '''
         INSERT INTO facility_types (type_name) VALUES (%s)
         ON CONFLICT (type_id) DO NOTHING
+        RETURNING facility_type_id, facility_name
         ''', (type_name,)
         )
         self.__connection.commit()
         
-        return FacilityTypesIn(type_name)
+        fetched_row = cursor.fetchone()
+        
+        return FacilityTypeOut(type_name)
         
 
-    def get_by_ID(self, type_id: str) -> Optional[FacilityTypesOut]:
+    def get_by_ID(self, type_id: str) -> Optional[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute('''SELECT type_id, type_name FROM facility_types WHERE type_ID = %s''', (type_id,))
@@ -30,24 +33,24 @@ class FacilityTypesRepository:
         fetched_row = cursor.fetchone()
         
         if fetched_row:
-            return FacilityTypesOut(fetched_row[0], fetched_row[1])
+            return FacilityTypeOut(fetched_row[0], fetched_row[1])
         else:
             return None
     
     
-    def get_all(self) -> List[FacilityTypesOut]:
+    def get_all(self) -> List[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute('''SELECT type_id, type_name FROM facility_types ORDER BY type_ID;''')
         
         result = []        
         for record in cursor.fetchall():
-            new_obj = FacilityTypesOut(record[0], record[1])
+            new_obj = FacilityTypeOut(record[0], record[1])
             result.append(new_obj)  
         return result
 
 
-    def update(self, type_id: str, new_name: str) -> Optional[FacilityTypesOut]:
+    def update(self, type_id: str, new_name: str) -> Optional[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -61,7 +64,7 @@ class FacilityTypesRepository:
         fetched_row = cursor.fetchone()
 
         if fetched_row:
-            return FacilityTypesOut(fetched_row[0], fetched_row[1])
+            return FacilityTypeOut(fetched_row[0], fetched_row[1])
         else:
             return None
 

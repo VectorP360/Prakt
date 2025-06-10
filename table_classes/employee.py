@@ -1,4 +1,4 @@
-from table_classes.facility import FacilityOut, FacilityTypesOut, WorkshopOut, ScadaSchemeOut
+from table_classes.facility import FacilityOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
 from table_classes.posts import PostsOut
 
 class EmployeeOut:
