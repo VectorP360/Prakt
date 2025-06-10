@@ -29,8 +29,8 @@ class EmployeeRepository:
             surname=fetched_row[1],
             name = fetched_row[2],
             fathersname = fetched_row[3],
-            facility = new_employee.facility.facility_id,
-            post = new_employee.post.post_ID,
+            facility = new_employee.facility,
+            post = new_employee.post,
             hire_date = fetched_row[6],
             employee_login = fetched_row[7],
             employee_password = fetched_row[8]
@@ -40,23 +40,48 @@ class EmployeeRepository:
     def get_by_ID(self, employee_id: str) -> Optional[EmployeeOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT employee_id, surname, name, fathersname, facility, post_id, hire_date, employee_login, employee_password 
-                       FROM employee WHERE employee_ID = %s''', (employee_id,))
+        cursor.execute('''SELECT employee_id, surname, name, fathersname, facility.facility_id, facility.facility_name, facility_types.facility_type_id, facility_types.facility_type_name, 
+                        workshop.workshop_id, workshop.workshop_name, scada_scheme.scheme_id, scada_scheme.scheme_name, posts.post_id, posts.post_name, hire_date, employee_login, employee_password
+                        FROM employee
+                        JOIN facility ON employee.facility = facility.facility_id
+                            JOIN facility_types ON facility.facility_type_id = facility_types.facility_type_id
+                            JOIN workshop ON facility.workshop_id = workshop.workshop_id
+                            JOIN scada_scheme ON facility.scada_scheme_id = scada_scheme.scheme_id
+                        JOIN posts USING (post_id)
+                        WHERE employee_id = %s''', (employee_id,))
 
         fetched_row = cursor.fetchone()
         
         if fetched_row:
             return EmployeeOut(
-                employee_id=fetched_row[0],
-                surname=fetched_row[1],
+                employee_id = fetched_row[0],
+                surname = fetched_row[1],
                 name = fetched_row[2],
                 fathersname = fetched_row[3],
-                facility = fetched_row[4],
-                post = fetched_row[5],
-                hire_date = fetched_row[6],
-                employee_login = fetched_row[7],
-                employee_password = fetched_row[8]
-                )
+                facility = FacilityOut(
+                    facility_id = fetched_row[4],
+                    name = fetched_row[5],
+                    type = FacilityTypeOut(
+                        facility_type_ID = fetched_row[6],
+                        facility_type_name = fetched_row[7]
+                    ),
+                    workshop = WorkshopOut(
+                        workshop_id = fetched_row[8],
+                        name = fetched_row[9]
+                    ),
+                    scada_scheme = ScadaSchemeOut(
+                        scheme_ID = fetched_row[10],
+                        scheme_name = fetched_row[11]
+                    ),
+                ),
+                post = PostsOut(
+                    post_ID = fetched_row[12],
+                    post_name = fetched_row[13]
+                ),
+                hire_date = fetched_row[14],
+                employee_login = fetched_row[15],
+                employee_password = fetched_row[16]
+            )
         else:
             return None
     
@@ -65,13 +90,13 @@ class EmployeeRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                        SELECT employee_id, surname, name, fathersname, facility.facility_id, facility.facility_name, facility_types.type_id, facility_types.type_name, 
+                        SELECT employee_id, surname, name, fathersname, facility.facility_id, facility.facility_name, facility_types.facility_type_id, facility_types.facility_type_name, 
                         workshop.workshop_id, workshop.workshop_name, scada_scheme.scheme_id, scada_scheme.scheme_name, posts.post_id, posts.post_name, hire_date, employee_login, employee_password
                         FROM employee
                         JOIN facility ON employee.facility = facility.facility_id
-                            JOIN facility_types ON facility.type_id = facility_types.type_id
+                            JOIN facility_types ON facility.facility_type_id = facility_types.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                            JOIN scada_scheme ON facility.scada_scheme = scada_scheme.scheme_id
+                            JOIN scada_scheme ON facility.scada_scheme_id = scada_scheme.scheme_id
                         JOIN posts USING (post_id)
                         ORDER BY employee_ID;
                        ''')
@@ -87,14 +112,14 @@ class EmployeeRepository:
                     facility_id = record[4],
                     name = record[5],
                     type = FacilityTypeOut(
-                        type_ID = record[6],
-                        type_name = record[7]
+                        facility_type_ID = record[6],
+                        facility_type_name = record[7]
                     ),
                     workshop = WorkshopOut(
                         workshop_id = record[8],
                         name = record[9]
                     ),
-                    scada_schema = ScadaSchemeOut(
+                    scada_scheme = ScadaSchemeOut(
                         scheme_ID = record[10],
                         scheme_name = record[11]
                     ),
