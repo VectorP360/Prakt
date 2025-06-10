@@ -1,8 +1,10 @@
 from datetime import datetime
 
-from repository_classes.employee_repository import EmployeeRepository, EmployeeIn
-from repository_classes.facility_repository import FacilityRepository
-from repository_classes.posts_repository import PostsRepository
+from repository.employee_repository import EmployeeRepository
+from repository.facility_repository import FacilityRepository
+from repository.posts_repository import PostsRepository
+
+from schemas.employee import EmployeeIn, EmployeeOut
 
 # TODO: коректная обработка даты, возможность пользователя выходить из любого этапа на стартовый
 # TODO: Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке.
@@ -31,6 +33,10 @@ class TerminalClient:
         self.facility_repository = facility_repository
 
 
+    def run(self) -> None: ...
+        # Реализуй данный метод таким образом, 
+        # чтобы он запускал клиента как при демонстрации
+    
     # Не бойся давать переменным более осмысленные названия
     def add_user(self):
         
