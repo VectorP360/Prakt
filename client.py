@@ -4,8 +4,8 @@ from repository_classes.employee_repository import EmployeeRepository, EmployeeI
 from repository_classes.facility_repository import FacilityRepository
 from repository_classes.posts_repository import PostsRepository
 
-# коректная обработка даты, возможность пользователя выходить из любого этапа на стартовый
-# Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке.
+# TODO: коректная обработка даты, возможность пользователя выходить из любого этапа на стартовый
+# TODO: Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке.
 
 class UserClass:
     def __init__(self, employee_repo: EmployeeRepository, posts_repo: PostsRepository, facility_repo: FacilityRepository):
