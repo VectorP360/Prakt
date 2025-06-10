@@ -7,13 +7,32 @@ from repository_classes.posts_repository import PostsRepository
 # TODO: коректная обработка даты, возможность пользователя выходить из любого этапа на стартовый
 # TODO: Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке.
 
-class UserClass:
-    def __init__(self, employee_repo: EmployeeRepository, posts_repo: PostsRepository, facility_repo: FacilityRepository):
-        self.employee_repo = employee_repo
-        self.posts_repo = posts_repo
-        self.facility_repo = facility_repo
 
-    def insert(self):
+# Тут лучше назвать не UserClass, а TerminalClient. 
+# Если ты переименуешь Employee в User, то будет конфликт: в программе есть два класса User и UserClass. 
+# При таком наименовании становится непонятно, кто какую роль на себя берет. 
+# При наименовании TerminalClient программист понимает, что:
+# 1) класс является клиентом в клиент-серверной архитектуре
+# 2) этот клиент реализует общение с пользователем через терминал
+
+# Пока он реализован только на взаимодействие с записями пользователей в БД. Пока что этого достаточно, 
+# но допиши класс так, чтобы он мог в будущем взять на себя чуть больше возможностей. 
+# Например, позволил бы пользователю управлять списком установок, типов, и так далее.  
+
+
+class TerminalClient:
+    def __init__(self, 
+                 employee_repository: EmployeeRepository, 
+                 posts_repository: PostsRepository, 
+                 facility_repository: FacilityRepository):
+        
+        self.employee_repository = employee_repository
+        self.posts_repository = posts_repository
+        self.facility_repository = facility_repository
+
+
+    # Не бойся давать переменным более осмысленные названия
+    def add_user(self):
         
         print('Для создания записи о сотруднике укажите все перечисленные данные:')
         surname = str(input('Фамилия: '))
@@ -21,64 +40,87 @@ class UserClass:
         fathersname = str(input('Отчество: '))
 
         print('\nУстановки:')
-            
-        for iteration in self.facility_repo.get_all():
+        
+        # TODO: Дополнить класс Facility таким образом, 
+        # чтобы при передаче объекта класса Facility в print печатались все данный в таком формате, как указано ниже.
+        # Нужно использовать dunder метод
+        
+        for iteration in self.facility_repository.get_all():
             print(f'''ID: {iteration.facility_id}, Наименование: {iteration.name}, {iteration.type.facility_type_name}, {iteration.workshop.name}, {iteration.scada_scheme.scheme_name}''')
                 
         facility = int(input('На какой установке (ID установки) будет работать сотрудник: '))
 
         print('\nДолжности:')
-        for iteration in self.posts_repo.get_all():
+        
+        for iteration in self.posts_repository.get_all():
             print(f'''ID: {iteration.post_ID}, Наименование: {iteration.post_name}''')
 
         post = int(input('Должность сотрудника (ID должности): '))
 
         new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
+        
         if new_hire == 1:
             hire_date = datetime.today()
         elif new_hire == 2:
             hire_date = (input('Дата найма сотрудника (год-месяц-число): '))
 
-        employee_login = str(input('Логин сотрудника: '))
-        employee_password = str(input('Личный пароль сотруднка: '))
+        login = str(input('Логин сотрудника: '))
+        password = str(input('Личный пароль сотруднка: '))
 
-        facility_in = self.facility_repo.get_by_ID(facility)
-        post_in = self.posts_repo.get_by_ID(post)
+        new_facility = self.facility_repository.get_by_ID(facility)
+        new_post = self.posts_repository.get_by_ID(post)
 
-        new_employee = self.employee_repo.create(new_employee = EmployeeIn(surname, name, fathersname, facility = facility_in, post = post_in, 
-                                                                    hire_date = hire_date, employee_login = employee_login, employee_password = employee_password))
+        # TIP: На экран не помещается строка XD
+        # Старайся компоновать код так, чтобы не приходилось его переметывать вбок.
+        # В идеале код должен пролистываться только вверх или вниз.
+        new_employee = self.employee_repository.create(
+            new_employee = EmployeeIn(surname, 
+                                      name, 
+                                      fathersname, 
+                                      facility = new_facility, 
+                                      post = new_post, 
+                                      hire_date = hire_date, 
+                                      employee_login = login, 
+                                      employee_password = password))
 
+        # TODO: Дополнить класс Employee (который в новом create_database.sql назван User) таким образом, 
+        # чтобы при передаче объекта класса Employee в print печатались все данный в таком формате, как указано ниже.
         print(f'''ID {new_employee.employee_id}, ФИО: {new_employee.surname} {new_employee.name} {new_employee.fathersname}, установка: {new_employee.facility.name}, должность: {new_employee.post.post_name}, Дата найма: {new_employee.hire_date}, Логин {new_employee.employee_login}''')
             
         input('Нажмите Enter что бы продолжить ')
 
 
-    def select(self):
+    def show_users(self):
+        # TODO: Описать возможные варианты ответа на данный вопрос как класс, который наследуется от класса IntEnum 
+        # (почитай примеры использования).
+        # С использованием данного подхода опиши методы, которые будут инкапсулировать логику, описанную после if и elif. 
+        # Аналогично в других частях кода
         select_type = input('Вы хотите просмотреть одну запись с конкретным ID или сразу все?\n1: C конкретным ID\n2: Все записи\n')
 
         if select_type == '1':
-            needed_ID = input('Введите ID записи которую хотите просмотреть\n')
-            founded_employee = self.employee_repo.get_by_ID(needed_ID)
+            needed_id = input('Введите ID записи которую хотите просмотреть\n')
+            founded_employee = self.employee_repository.get_by_ID(needed_id)
+            
             if founded_employee:
                 print(f'''ID {founded_employee.employee_id}, ФИО: {founded_employee.surname} {founded_employee.name} {founded_employee.fathersname}, Установка: {founded_employee.facility.name}, Должность: {founded_employee.post.post_name}, Дата найма {founded_employee.hire_date}, Логин {founded_employee.employee_login}''')
             else:
                 print('Записи с указанным ID не найдено')
-            input('Нажмите Enter что бы продолжить ')
             
         elif select_type == '2':
-            for founded_employee in (self.employee_repo.get_all()):
+            for founded_employee in (self.employee_repository.get_all()):
                 print(f'''ID {founded_employee.employee_id}, ФИО: {founded_employee.surname} {founded_employee.name} {founded_employee.fathersname}, Установка: {founded_employee.facility.name}, Должность: {founded_employee.post.post_name}, Дата найма {founded_employee.hire_date}, Логин {founded_employee.employee_login}''')
-            input('Нажмите Enter что бы продолжить ')
+            
+        input('Нажмите Enter что бы продолжить ')
 
 
-    def update(self):
+    def update_user(self):
 
-        for iteration in self.employee_repo.get_all():
+        for iteration in self.employee_repository.get_all():
             print(f'''ID: {iteration.employee_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
         
         edit_employee = int(input('Введите ID сотрудника, чью запись хотите изменить: '))
         
-        if self.employee_repo.get_by_ID(edit_employee):
+        if self.employee_repository.get_by_ID(edit_employee):
             
             surname = str(input('Новая фамилия: '))
             name = str(input('Новое имя: '))
@@ -86,20 +128,20 @@ class UserClass:
 
             print('\nУстановки:')
             
-            for iteration in self.facility_repo.get_all():
+            for iteration in self.facility_repository.get_all():
                 print(f'''ID: {iteration.facility_id}, Наименование: {iteration.name}, {iteration.type.facility_type_name}, {iteration.workshop.name}, {iteration.scada_scheme.scheme_name}''')
                     
             facility_id = int(input('На какой установке (ID установки) будет работать сотрудник: '))
 
-            if self.facility_repo.get_by_ID(facility_id):
+            if self.facility_repository.get_by_ID(facility_id):
 
                 print('\nДолжности:')
-                for iteration in self.posts_repo.get_all():
+                for iteration in self.posts_repository.get_all():
                     print(f'''ID: {iteration.post_ID}, Наименование: {iteration.post_name}''')
 
                 post = int(input('Должность сотрудника (ID должности): '))
 
-                if self.posts_repo.get_by_ID(post):
+                if self.posts_repository.get_by_ID(post):
                     
                     new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
                     if new_hire == 1:
@@ -109,10 +151,10 @@ class UserClass:
                     employee_login = str(input('Новый логин сотрудника: '))
                     employee_password = str(input('Новый личный пароль сотруднка: '))
 
-                    facility_in = self.facility_repo.get_by_ID(facility_id)
-                    post_in = self.posts_repo.get_by_ID(post)
+                    facility_in = self.facility_repository.get_by_ID(facility_id)
+                    post_in = self.posts_repository.get_by_ID(post)
 
-                    upd_employee = self.employee_repo.update(edit_employee, new_employee = EmployeeIn(surname, name, fathersname, facility_in, post_in, hire_date, employee_login, employee_password))
+                    upd_employee = self.employee_repository.update(edit_employee, new_employee = EmployeeIn(surname, name, fathersname, facility_in, post_in, hire_date, employee_login, employee_password))
 
                     print(f'''ID {upd_employee.employee_id}, ФИО: {upd_employee.surname} {upd_employee.name} {upd_employee.fathersname}, установка: {upd_employee.facility.name}, должность: {upd_employee.post.post_name}, Дата найма: {upd_employee.hire_date}, Логин {upd_employee.employee_login}''')
                 else:
@@ -124,20 +166,22 @@ class UserClass:
         input('Нажмите Enter что бы продолжить')
 
 
-    def delete(self):
+    def delete_user(self):
                 
         print('\nСотрудники:')
-        for iteration in self.employee_repo.get_all():
+        
+        # Подсказка: надо описать dunder метод
+        for iteration in self.employee_repository.get_all():
             print(f'''ID: {iteration.employee_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
             
         deleted_employee = input('Введите ID сотрудника, чью запись хотите удалить: ')
         acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
 
         if acception == 'y':
-            check = self.employee_repo.delete(deleted_employee)
-            if check:
+                        
+            if self.employee_repository.delete(deleted_employee):
                 print('Удаление произшло успешно!')
-                input('Нажмите Enter что бы продолжить')
             else:
                 print('Удаление не состоялось!')
-                input('Нажмите Enter что бы продолжить')
+            
+            input('Нажмите Enter что бы продолжить')
