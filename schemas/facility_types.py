@@ -1,8 +1,8 @@
 class FacilityTypeOut:
-    def __init__(self, facility_type_ID: int, facility_type_name: str):
-        self.facility_type_ID = facility_type_ID
-        self.facility_type_name = facility_type_name
+    def __init__(self, facility_type_id: int, name: str):
+        self.facility_type_id = facility_type_id
+        self.name = name
 
 class FacilityTypeIn:
-    def __init__(self, facility_type_name: str):
-        self.facility_type_name = facility_type_name
+    def __init__(self, name: str):
+        self.name = name

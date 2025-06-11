@@ -1,10 +1,9 @@
 from datetime import datetime
 
-from repository.employee_repository import EmployeeRepository
+from repository.user_repository import UserRepository
 from repository.facility_repository import FacilityRepository
 from repository.posts_repository import PostsRepository
-
-from schemas.employee import EmployeeIn, EmployeeOut
+from schemas.user import UserIn, UserOut
 
 # TODO: коректная обработка даты, возможность пользователя выходить из любого этапа на стартовый
 # TODO: Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке.
@@ -24,19 +23,41 @@ from schemas.employee import EmployeeIn, EmployeeOut
 
 class TerminalClient:
     def __init__(self, 
-                 employee_repository: EmployeeRepository, 
+                 user_repository: UserRepository, 
                  posts_repository: PostsRepository, 
                  facility_repository: FacilityRepository):
         
-        self.employee_repository = employee_repository
+        self.user_repository = user_repository
         self.posts_repository = posts_repository
         self.facility_repository = facility_repository
 
 
-    def run(self) -> None: ...
-        # Реализуй данный метод таким образом, 
-        # чтобы он запускал клиента как при демонстрации
-    
+    def run(self) -> None:
+        operation = None
+
+        while operation != 0:
+            print('Укажите номер операции, которую хотите выполнить\n',
+                  '1: Создание новой записи\n',
+                  '2: Просмотр записи по ID / всех записей\n',
+                  '3: Редактирование записи\n',
+                  '4: удаление записи\n\n',
+                  'Для выхода из приложения введие 0\n')
+
+            operation = int(input('Операция :'))
+
+            if operation == 1:
+                self.add_user()
+
+            if operation == 2:
+                self.show_users()
+
+            if operation == 3:
+                self.update_user()
+
+            if operation == 4:
+                self.delete_user()
+
+
     # Не бойся давать переменным более осмысленные названия
     def add_user(self):
         
@@ -79,19 +100,19 @@ class TerminalClient:
         # TIP: На экран не помещается строка XD
         # Старайся компоновать код так, чтобы не приходилось его переметывать вбок.
         # В идеале код должен пролистываться только вверх или вниз.
-        new_employee = self.employee_repository.create(
-            new_employee = EmployeeIn(surname, 
+        new_user = self.user_repository.create(
+            new_user = UserIn(surname, 
                                       name, 
                                       fathersname, 
                                       facility = new_facility, 
                                       post = new_post, 
                                       hire_date = hire_date, 
-                                      employee_login = login, 
-                                      employee_password = password))
+                                      login = login, 
+                                      password = password))
 
-        # TODO: Дополнить класс Employee (который в новом create_database.sql назван User) таким образом, 
-        # чтобы при передаче объекта класса Employee в print печатались все данный в таком формате, как указано ниже.
-        print(f'''ID {new_employee.employee_id}, ФИО: {new_employee.surname} {new_employee.name} {new_employee.fathersname}, установка: {new_employee.facility.name}, должность: {new_employee.post.post_name}, Дата найма: {new_employee.hire_date}, Логин {new_employee.employee_login}''')
+        # TODO: Дополнить класс User (который в новом create_database.sql назван User) таким образом, 
+        # чтобы при передаче объекта класса User в print печатались все данный в таком формате, как указано ниже.
+        print(f'''ID {new_user.user_id}, ФИО: {new_user.surname} {new_user.name} {new_user.fathersname}, установка: {new_user.facility.name}, должность: {new_user.post.post_name}, Дата найма: {new_user.hire_date}, Логин {new_user.login}''')
             
         input('Нажмите Enter что бы продолжить ')
 
@@ -105,28 +126,28 @@ class TerminalClient:
 
         if select_type == '1':
             needed_id = input('Введите ID записи которую хотите просмотреть\n')
-            founded_employee = self.employee_repository.get_by_ID(needed_id)
+            founded_user = self.user_repository.get_by_ID(needed_id)
             
-            if founded_employee:
-                print(f'''ID {founded_employee.employee_id}, ФИО: {founded_employee.surname} {founded_employee.name} {founded_employee.fathersname}, Установка: {founded_employee.facility.name}, Должность: {founded_employee.post.post_name}, Дата найма {founded_employee.hire_date}, Логин {founded_employee.employee_login}''')
+            if founded_user:
+                print(f'''ID {founded_user.user_id}, ФИО: {founded_user.surname} {founded_user.name} {founded_user.fathersname}, Установка: {founded_user.facility.name}, Должность: {founded_user.post.post_name}, Дата найма {founded_user.hire_date}, Логин {founded_user.login}''')
             else:
                 print('Записи с указанным ID не найдено')
             
         elif select_type == '2':
-            for founded_employee in (self.employee_repository.get_all()):
-                print(f'''ID {founded_employee.employee_id}, ФИО: {founded_employee.surname} {founded_employee.name} {founded_employee.fathersname}, Установка: {founded_employee.facility.name}, Должность: {founded_employee.post.post_name}, Дата найма {founded_employee.hire_date}, Логин {founded_employee.employee_login}''')
+            for founded_user in (self.user_repository.get_all()):
+                print(f'''ID {founded_user.user_id}, ФИО: {founded_user.surname} {founded_user.name} {founded_user.fathersname}, Установка: {founded_user.facility.name}, Должность: {founded_user.post.post_name}, Дата найма {founded_user.hire_date}, Логин {founded_user.login}''')
             
         input('Нажмите Enter что бы продолжить ')
 
 
     def update_user(self):
 
-        for iteration in self.employee_repository.get_all():
-            print(f'''ID: {iteration.employee_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
+        for iteration in self.user_repository.get_all():
+            print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
         
-        edit_employee = int(input('Введите ID сотрудника, чью запись хотите изменить: '))
+        edit_user = int(input('Введите ID сотрудника, чью запись хотите изменить: '))
         
-        if self.employee_repository.get_by_ID(edit_employee):
+        if self.user_repository.get_by_ID(edit_user):
             
             surname = str(input('Новая фамилия: '))
             name = str(input('Новое имя: '))
@@ -154,15 +175,15 @@ class TerminalClient:
                         hire_date = datetime.today()
                     elif new_hire == 2:
                         hire_date = int(input('Дата найма сотрудника (год-месяц-число): '))
-                    employee_login = str(input('Новый логин сотрудника: '))
-                    employee_password = str(input('Новый личный пароль сотруднка: '))
+                    login = str(input('Новый логин сотрудника: '))
+                    password = str(input('Новый личный пароль сотруднка: '))
 
                     facility_in = self.facility_repository.get_by_ID(facility_id)
                     post_in = self.posts_repository.get_by_ID(post)
 
-                    upd_employee = self.employee_repository.update(edit_employee, new_employee = EmployeeIn(surname, name, fathersname, facility_in, post_in, hire_date, employee_login, employee_password))
+                    upd_user = self.user_repository.update(edit_user, new_user = UserIn(surname, name, fathersname, facility_in, post_in, hire_date, login, password))
 
-                    print(f'''ID {upd_employee.employee_id}, ФИО: {upd_employee.surname} {upd_employee.name} {upd_employee.fathersname}, установка: {upd_employee.facility.name}, должность: {upd_employee.post.post_name}, Дата найма: {upd_employee.hire_date}, Логин {upd_employee.employee_login}''')
+                    print(f'''ID {upd_user.user_id}, ФИО: {upd_user.surname} {upd_user.name} {upd_user.fathersname}, установка: {upd_user.facility.name}, должность: {upd_user.post.post_name}, Дата найма: {upd_user.hire_date}, Логин {upd_user.login}''')
                 else:
                     print('Должности с указанным ID не обнаружено')
             else:
@@ -177,15 +198,15 @@ class TerminalClient:
         print('\nСотрудники:')
         
         # Подсказка: надо описать dunder метод
-        for iteration in self.employee_repository.get_all():
-            print(f'''ID: {iteration.employee_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
+        for iteration in self.user_repository.get_all():
+            print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
             
-        deleted_employee = input('Введите ID сотрудника, чью запись хотите удалить: ')
+        deleted_user = input('Введите ID сотрудника, чью запись хотите удалить: ')
         acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
 
         if acception == 'y':
                         
-            if self.employee_repository.delete(deleted_employee):
+            if self.user_repository.delete(deleted_user):
                 print('Удаление произшло успешно!')
             else:
                 print('Удаление не состоялось!')

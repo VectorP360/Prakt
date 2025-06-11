@@ -32,6 +32,20 @@ CREATE TABLE post(
 -- Можно так, как мы у себя на работе делаем: название_таблицы_id.
 
 
+-- Я всюду стираю запросы на DROP и IF EXISTS из соображений, что данный скрипт файл расскажет мне, 
+-- как база данных устроена в момент его инициализации (грубо говоря, в момент рождения)
+CREATE TABLE facility(
+    facility_id SERIAL PRIMARY KEY,
+    name VARCHAR(128),
+
+    type_id INTEGER,
+    workshop_id INTEGER,
+
+    FOREIGN KEY (type_id) REFERENCES facility_type (facility_type_id),
+    FOREIGN KEY (workshop_id) REFERENCES workshop (workshop_id)
+);
+
+
 CREATE TABLE scada_scheme(
     scada_scheme_id SERIAL PRIMARY KEY,
     name VARCHAR(128),
@@ -47,21 +61,6 @@ CREATE TABLE scada_scheme(
     facility_id INTEGER NOT NULL,
     FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
 );
-
-
--- Я всюду стираю запросы на DROP и IF EXISTS из соображений, что данный скрипт файл расскажет мне, 
--- как база данных устроена в момент его инициализации (грубо говоря, в момент рождения)
-CREATE TABLE facility(
-    facility_id SERIAL PRIMARY KEY,
-    name VARCHAR(128),
-
-    type_id INTEGER,
-    workshop_id INTEGER,
-
-    FOREIGN KEY (type_id) REFERENCES facility_types (type_id),
-    FOREIGN KEY (workshop_id) REFERENCES workshop (workshop_id)
-);
-
 -- Тут при указании внешнего ключа дублируешь название первичного ключа той таблицы, 
 -- на которую тебе нужно сослаться.
 

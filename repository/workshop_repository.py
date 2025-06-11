@@ -8,24 +8,24 @@ class WorkshopRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, workshop_name: str)-> WorkshopIn:
+    def create(self, name: str)-> WorkshopIn:
         cursor = self.__connection.cursor()
 
         cursor.execute(
         '''
-        INSERT INTO workshop (workshop_name) VALUES (%s)
+        INSERT INTO workshop (name) VALUES (%s)
         ON CONFLICT (workshop_id) DO NOTHING
-        ''', (workshop_name,)
+        ''', (name,)
         )
         self.__connection.commit()
         
-        return WorkshopIn(workshop_name)
+        return WorkshopIn(name)
         
 
     def get_by_ID(self, workshop_id: str) -> Optional[WorkshopOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT workshop_id, workshop_name FROM workshop WHERE workshop_ID = %s''', (workshop_id,))
+        cursor.execute('''SELECT workshop_id, name FROM workshop WHERE workshop_ID = %s''', (workshop_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -38,7 +38,7 @@ class WorkshopRepository:
     def get_all(self) -> List[WorkshopOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT workshop_id, workshop_name FROM workshop ORDER BY workshop_ID;''')
+        cursor.execute('''SELECT workshop_id, name FROM workshop ORDER BY workshop_ID;''')
         
         result = []        
         for record in cursor.fetchall():
@@ -52,8 +52,8 @@ class WorkshopRepository:
 
         cursor.execute(
         '''
-        UPDATE workshop SET workshop_name = %s WHERE workshop_id = %s
-        RETURNING workshop_id, workshop_name;''', (new_name, workshop_id,)
+        UPDATE workshop SET name = %s WHERE workshop_id = %s
+        RETURNING workshop_id, name;''', (new_name, workshop_id,)
         )
 
         self.__connection.commit()

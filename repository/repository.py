@@ -8,3 +8,4 @@ class RepositoryManager:
     # например, get_facility_repository(), который возвращает объект класса FacilityRepository. 
     # И так для всех классов. Чтобы через объект класса RepositoryManager можно было получить любой репозиторий.
     
+    

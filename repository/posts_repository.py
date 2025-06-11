@@ -8,24 +8,24 @@ class PostsRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, post_name: str)-> PostsIn:
+    def create(self, name: str)-> PostsIn:
         cursor = self.__connection.cursor()
 
         cursor.execute(
         '''
-        INSERT INTO posts (post_name) VALUES (%s)
+        INSERT INTO posts (name) VALUES (%s)
         ON CONFLICT (post_id) DO NOTHING
-        ''', (post_name,)
+        ''', (name,)
         )
         self.__connection.commit()
         
-        return PostsIn(post_name)
+        return PostsIn(name)
         
 
     def get_by_ID(self, post_id: str) -> Optional[PostsOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT post_id, post_name FROM posts WHERE post_ID = %s''', (post_id,))
+        cursor.execute('''SELECT post_id, name FROM posts WHERE post_ID = %s''', (post_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -38,7 +38,7 @@ class PostsRepository:
     def get_all(self) -> List[PostsOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT post_id, post_name FROM posts ORDER BY post_ID;''')
+        cursor.execute('''SELECT post_id, name FROM posts ORDER BY post_ID;''')
         
         result = []        
         for record in cursor.fetchall():
@@ -52,8 +52,8 @@ class PostsRepository:
 
         cursor.execute(
         '''
-        UPDATE posts SET post_name = %s WHERE post_id = %s
-        RETURNING post_id, post_name;''', (new_name, post_id,)
+        UPDATE posts SET name = %s WHERE post_id = %s
+        RETURNING post_id, name;''', (new_name, post_id,)
         )
 
         self.__connection.commit()

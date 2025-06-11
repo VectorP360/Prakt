@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from schemas.facility import FacilityOut, FacilityIn, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
+from schemas.facility import FacilityOut, FacilityIn, FacilityTypeOut, WorkshopOut
 
 
 class FacilityRepository:
@@ -15,8 +15,8 @@ class FacilityRepository:
         cursor.execute(
         '''
         INSERT INTO facility (facility_name, facility_type_id, workshop_id, scada_scheme_id) VALUES (%s,%s,%s,%s)
-        RETURNING facility_id, facility_name,facility_type_id, workshop_id, scada_scheme_id
-        ''', (new_facility.name, new_facility.type.facility_type_ID, new_facility.workshop.workshop_id, new_facility.scada_scheme.scheme_ID,)
+        RETURNING facility_id, facility_name,facility_type_id, workshop_id
+        ''', (new_facility.name, new_facility.type.facility_type_ID, new_facility.workshop.workshop_id,)
         )
         self.__connection.commit()
         
@@ -26,15 +26,14 @@ class FacilityRepository:
             facility_id=fetched_row[0],
             name=fetched_row[1],
             type= new_facility.type.facility_type_ID, 
-            workshop= new_facility.workshop.workshop_id, 
-            scada_scheme= new_facility.scada_scheme.scheme_ID
+            workshop= new_facility.workshop.workshop_id
             )
         
 
     def get_by_ID(self, facility_id: str) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT facility_id, facility_name, facility_type_id, workshop_id, scada_scheme_id FROM facility WHERE facility_ID = %s''', (facility_id,))
+        cursor.execute('''SELECT facility_id, facility.name, facility_type_id, workshop_id FROM facility WHERE facility_ID = %s''', (facility_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -43,8 +42,7 @@ class FacilityRepository:
                 fetched_row[0],
                 fetched_row[1], 
                 type = fetched_row[2], 
-                workshop = fetched_row[3], 
-                scada_scheme = fetched_row[4]
+                workshop = fetched_row[3]
                 )
         else:
             return None
@@ -54,12 +52,11 @@ class FacilityRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                        SELECT facility_id, facility_name, facility_type_id, facility_type_name, workshop_id, 
-                            workshop.workshop_name, scada_scheme.scheme_id, scada_scheme.scheme_name
+                        SELECT facility_id, facility.name, facility_type_id, facility_type.name, workshop_id, 
+                            workshop.name
                         FROM facility
                         JOIN facility_types USING (facility_type_id)
                         JOIN workshop USING (workshop_id)
-                        JOIN scada_scheme ON facility.scada_scheme_id = scada_scheme.scheme_id
                         ORDER BY facility_ID;
                        ''')
         
@@ -67,8 +64,7 @@ class FacilityRepository:
         for record in cursor.fetchall():
             type = FacilityTypeOut(record[2],record[3])
             workshop = WorkshopOut(record[4],record[5])
-            scada_scheme = ScadaSchemeOut(record[6],record[7])
-            new_obj = FacilityOut(record[0], record[1],type = type, workshop = workshop, scada_scheme = scada_scheme)
+            new_obj = FacilityOut(record[0], record[1],type = type, workshop = workshop)
             result.append(new_obj)  
         return result
 
@@ -78,12 +74,12 @@ class FacilityRepository:
 
         cursor.execute(
         '''
-        UPDATE facility SET facility_name = %s, facility_type_id = %s, workshop_id = %s, scada_scheme.scheme_id = %s
+        UPDATE facility SET facility_name = %s, facility_type_id = %s, workshop_id = %s
         WHERE facility_id = %s
 
         RETURNING facility_id, facility_name
         ''', 
-        (new_facility.name, new_facility.type.facility_type_ID, new_facility.workshop.workshop_id, new_facility.scada_scheme.scheme_ID, facility_id,)
+        (new_facility.name, new_facility.type.facility_type_ID, new_facility.workshop.workshop_id, facility_id,)
         )
         self.__connection.commit()
 
@@ -92,13 +88,11 @@ class FacilityRepository:
         if fetched_row:
             type = new_facility.type
             workshop = new_facility.workshop
-            scada_scheme = new_facility.scada_schema
             return FacilityOut(
                 fetched_row[0], 
                 fetched_row[1], 
                 type, 
-                workshop, 
-                scada_scheme)
+                workshop)
         else:
             return None
 
