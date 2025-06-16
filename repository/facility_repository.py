@@ -16,7 +16,7 @@ class FacilityRepository:
         '''
         INSERT INTO facility (facility_name, facility_type_id, workshop_id, scada_scheme_id) VALUES (%s,%s,%s,%s)
         RETURNING facility_id, facility_name,facility_type_id, workshop_id
-        ''', (new_facility.name, new_facility.type.facility_type_ID, new_facility.workshop.workshop_id,)
+        ''', (new_facility.name, new_facility.type.facility_type_id, new_facility.workshop.workshop_id,)
         )
         self.__connection.commit()
         
@@ -25,15 +25,15 @@ class FacilityRepository:
         return FacilityOut(
             facility_id=fetched_row[0],
             name=fetched_row[1],
-            type= new_facility.type.facility_type_ID, 
+            type= new_facility.type.facility_type_id, 
             workshop= new_facility.workshop.workshop_id
             )
         
 
-    def get_by_ID(self, facility_id: str) -> Optional[FacilityOut]:
+    def get_by_ID(self, facility_id: int) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT facility_id, facility.name, facility_type_id, workshop_id FROM facility WHERE facility_ID = %s''', (facility_id,))
+        cursor.execute('''SELECT facility_id, facility.name, type_id, workshop_id FROM facility WHERE facility_id = %s''', (facility_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -52,12 +52,12 @@ class FacilityRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                        SELECT facility_id, facility.name, facility_type_id, facility_type.name, workshop_id, 
+                        SELECT facility_id, facility.name, facility_type_id, facility_type.type_name, workshop_id, 
                             workshop.name
                         FROM facility
-                        JOIN facility_types USING (facility_type_id)
+                        JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                         JOIN workshop USING (workshop_id)
-                        ORDER BY facility_ID;
+                        ORDER BY facility_id;
                        ''')
         
         result = []        
@@ -79,7 +79,7 @@ class FacilityRepository:
 
         RETURNING facility_id, facility_name
         ''', 
-        (new_facility.name, new_facility.type.facility_type_ID, new_facility.workshop.workshop_id, facility_id,)
+        (new_facility.name, new_facility.type.facility_type_id, new_facility.workshop.workshop_id, facility_id,)
         )
         self.__connection.commit()
 
@@ -100,7 +100,7 @@ class FacilityRepository:
     def delete(self, facility_id: int) -> bool:
         cursor = self.__connection.cursor()
         
-        cursor.execute('''DELETE FROM facility WHERE facility_ID = %s''', (facility_id,))
+        cursor.execute('''DELETE FROM facility WHERE facility_id = %s''', (facility_id,))
         self.__connection.commit()
 
         return bool(cursor.rowcount)

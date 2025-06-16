@@ -1,22 +1,22 @@
 from typing import Optional
 
-from repository.user_repository import EmployeeRepository, EmployeeOut
+from repository.user_repository import UserRepository, UserOut
 from repository.facility_repository import FacilityRepository, FacilityOut
 from repository.posts_repository import PostsRepository, PostsOut
 
-def list_for_employees(employee_repo: EmployeeRepository) -> Optional[EmployeeOut]:
-    employees = []
+def list_for_users(user_repo: UserRepository) -> Optional[UserOut]:
+    users = []
     iteration_number = 0
 
-    for iteration in employee_repo.get_all():
-        print(f'''Сотрудник №{iteration_number}: ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, установка: {iteration.facility.name}, должность: {iteration.post.post_name}''')
-        employees.append(iteration.employee_id)
+    for iteration in user_repo.get_all():
+        print('Номер сотрудника: ',iteration_number,'\n',iteration)
+        users.append(iteration.user_id)
         iteration_number += 1
 
-    edit_employee = int(input('\nВведите номер сотрудника, чью запись хотите изменить: '))
+    edit_user = int(input('\nВведите номер сотрудника, чью запись хотите изменить: '))
 
     try:
-        return employee_repo.get_by_ID(employees[edit_employee])
+        return user_repo.get_by_ID(users[edit_user])
     except IndexError:
         return
 
@@ -27,7 +27,7 @@ def list_for_facilityes(facility_repo: FacilityRepository) -> Optional[FacilityO
 
     print('\nУстановки:')
     for iteration in facility_repo.get_all():
-        print(f'''Установка №: {iteration_number}: Наименование: {iteration.name}, {iteration.type.facility_type_name}, {iteration.workshop.name}, {iteration.scada_scheme.scheme_name}''')
+        print(f'Установка №{iteration_number} , {iteration}')
         facilityes.append(iteration.facility_id)
         iteration_number += 1
 
@@ -45,7 +45,7 @@ def list_for_posts(posts_repo: PostsRepository) -> Optional[PostsOut]:
 
     print('\nДолжности:')
     for iteration in posts_repo.get_all():
-        print(f'''Должность №{iteration_number}: Наименование: {iteration.post_name}''')
+        print(f'Должность №{iteration_number}: Наименование: {iteration.name}')
         posts.append(iteration.post_ID)
         iteration_number += 1
 
