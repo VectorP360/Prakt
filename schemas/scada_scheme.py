@@ -6,6 +6,9 @@ class ScadaSchemeOut:
         self.name = name
         self.facility = facility
 
+    def __str__(self):
+        return f'id схемы: {self.scheme_id}, название: {self.name}, установка: {self.facility.name}'
+
 class ScadaSchemeIn:
     def __init__(self, name: str, facility: FacilityOut):
         self.name = name

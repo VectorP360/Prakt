@@ -1,4 +1,4 @@
-from schemas.facility import FacilityOut, FacilityTypeOut, WorkshopOut, ScadaSchemeOut
+from schemas.facility import FacilityOut, FacilityTypeOut, WorkshopOut
 from schemas.posts import PostsOut
 
 class UserOut:
@@ -12,6 +12,9 @@ class UserOut:
         self.password = password
         self.facility = facility
         self.post = post
+
+    def __str__(self):
+        return f'''ID {self.user_id}, ФИО: {self.surname} {self.name} {self.fathersname}, установка: {self.facility.name}, должность: {self.post.name}, Дата найма: {self.hire_date}, Логин {self.login}'''
 
 class UserIn:
     def __init__(self, surname:str, name:str, fathersname:str, facility:FacilityOut, post: PostsOut, hire_date:str, login:str, password:str):
