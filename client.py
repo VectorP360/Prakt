@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from repository.user_repository import UserRepository
-from repository.facility_repository import FacilityRepository
-from repository.posts_repository import PostsRepository
+from repository.repository import RepositoryManager
 from schemas.user import UserIn, UserOut
+from update_id_to_list import list_for_users, list_for_facilityes, list_for_posts
+from password_generator import password_generator
 
-# TODO: коректная обработка даты, возможность пользователя выходить из любого этапа на стартовый
-# TODO: Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке.
+# TODO: коректная обработка даты [X] , возможность пользователя выходить из любого этапа на стартовый []
+# TODO: Дать пользователю возможность выбирать не id , а порядковый номер в выводимом списке. [X]
 
 
 # Тут лучше назвать не UserClass, а TerminalClient. 
@@ -16,21 +16,19 @@ from schemas.user import UserIn, UserOut
 # 1) класс является клиентом в клиент-серверной архитектуре
 # 2) этот клиент реализует общение с пользователем через терминал
 
-# Пока он реализован только на взаимодействие с записями пользователей в БД. Пока что этого достаточно, 
-# но допиши класс так, чтобы он мог в будущем взять на себя чуть больше возможностей. 
-# Например, позволил бы пользователю управлять списком установок, типов, и так далее.  
+# Пока он реализован только на взаимодействие с записями пользователей в БД. Пока что этого достаточно,
+# но допиши класс так, чтобы он мог в будущем взять на себя чуть больше возможностей.
+# Например, позволил бы пользователю управлять списком установок, типов, и так далее.
 
 
 class TerminalClient:
-    def __init__(self, 
-                 user_repository: UserRepository, 
-                 posts_repository: PostsRepository, 
-                 facility_repository: FacilityRepository):
-        
-        self.user_repository = user_repository
-        self.posts_repository = posts_repository
-        self.facility_repository = facility_repository
-
+    def __init__(self, manager: RepositoryManager): 
+        self.facility_repository = manager.get_facility_repository()
+        self.posts_repository = manager.get_posts_repository()
+        self.user_repository = manager.get_user_repository()
+        self.scada_scheme_repository = manager.get_scada_scheme_repository()
+        self.facility_types_repository = manager.get_facility_types_repository()
+        self.workshop_repository = manager.get_workshop_repository()
 
     def run(self) -> None:
         operation = None
@@ -65,37 +63,38 @@ class TerminalClient:
         surname = str(input('Фамилия: '))
         name = str(input('Имя: '))
         fathersname = str(input('Отчество: '))
-
-        print('\nУстановки:')
         
         # TODO: Дополнить класс Facility таким образом, 
-        # чтобы при передаче объекта класса Facility в print печатались все данный в таком формате, как указано ниже.
+        # чтобы при передаче объекта класса Facility в print печатались все данный в таком формате, как указано ниже. [X]
         # Нужно использовать dunder метод
         
-        for iteration in self.facility_repository.get_all():
-            print(f'''ID: {iteration.facility_id}, Наименование: {iteration.name}, {iteration.type.facility_type_name}, {iteration.workshop.name}, {iteration.scada_scheme.scheme_name}''')
-                
-        facility = int(input('На какой установке (ID установки) будет работать сотрудник: '))
+        new_facility = list_for_facilityes(self.facility_repository)
+        if not new_facility:
+            print('Установки под данным номером не обнаружено')
+            input('Нажмите Enter что бы продолжить ')
+            return
 
-        print('\nДолжности:')
-        
-        for iteration in self.posts_repository.get_all():
-            print(f'''ID: {iteration.post_ID}, Наименование: {iteration.post_name}''')
-
-        post = int(input('Должность сотрудника (ID должности): '))
+        new_post = list_for_posts(self.posts_repository)
+        if not new_post:
+            print('Должности под данным номером не обнаружено')
+            input('Нажмите Enter что бы продолжить ')
+            return
 
         new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
         
         if new_hire == 1:
             hire_date = datetime.today()
         elif new_hire == 2:
-            hire_date = (input('Дата найма сотрудника (год-месяц-число): '))
+            hire_date = datetime.strptime(str(input('Дата найма сотрудника (год-месяц-число): ')), '%y-%m-%d')
 
         login = str(input('Логин сотрудника: '))
-        password = str(input('Личный пароль сотруднка: '))
 
-        new_facility = self.facility_repository.get_by_ID(facility)
-        new_post = self.posts_repository.get_by_ID(post)
+        if new_post.post_ID == 1:
+            password_length = 12
+        else:
+            password_length = 8
+
+        password = password_generator(password_length)
 
         # TIP: На экран не помещается строка XD
         # Старайся компоновать код так, чтобы не приходилось его переметывать вбок.
@@ -110,9 +109,9 @@ class TerminalClient:
                                       login = login, 
                                       password = password))
 
-        # TODO: Дополнить класс User (который в новом create_database.sql назван User) таким образом, 
-        # чтобы при передаче объекта класса User в print печатались все данный в таком формате, как указано ниже.
-        print(f'''ID {new_user.user_id}, ФИО: {new_user.surname} {new_user.name} {new_user.fathersname}, установка: {new_user.facility.name}, должность: {new_user.post.post_name}, Дата найма: {new_user.hire_date}, Логин {new_user.login}''')
+        # TODO: Дополнить класс User таким образом, 
+        # чтобы при передаче объекта класса User в print печатались все данный в таком формате, как указано ниже. [X]
+        print(new_user)
             
         input('Нажмите Enter что бы продолжить ')
 
@@ -129,67 +128,60 @@ class TerminalClient:
             founded_user = self.user_repository.get_by_ID(needed_id)
             
             if founded_user:
-                print(f'''ID {founded_user.user_id}, ФИО: {founded_user.surname} {founded_user.name} {founded_user.fathersname}, Установка: {founded_user.facility.name}, Должность: {founded_user.post.post_name}, Дата найма {founded_user.hire_date}, Логин {founded_user.login}''')
+                print(founded_user)
             else:
                 print('Записи с указанным ID не найдено')
             
         elif select_type == '2':
             for founded_user in (self.user_repository.get_all()):
-                print(f'''ID {founded_user.user_id}, ФИО: {founded_user.surname} {founded_user.name} {founded_user.fathersname}, Установка: {founded_user.facility.name}, Должность: {founded_user.post.post_name}, Дата найма {founded_user.hire_date}, Логин {founded_user.login}''')
+                print(founded_user)
             
         input('Нажмите Enter что бы продолжить ')
 
 
     def update_user(self):
-
-        for iteration in self.user_repository.get_all():
-            print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
         
-        edit_user = int(input('Введите ID сотрудника, чью запись хотите изменить: '))
-        
-        if self.user_repository.get_by_ID(edit_user):
+        print('Сотрудники: ')
+        edit_user = list_for_users(self.user_repository)
+
+        if not edit_user:
+            print('Сотрудника под данным номером не обнаружено')
+            return
             
-            surname = str(input('Новая фамилия: '))
-            name = str(input('Новое имя: '))
-            fathersname = str(input('Новое отчество: '))
-
-            print('\nУстановки:')
+        surname = str(input('Новая фамилия: '))
+        name = str(input('Новое имя: '))
+        fathersname = str(input('Новое отчество: '))
             
-            for iteration in self.facility_repository.get_all():
-                print(f'''ID: {iteration.facility_id}, Наименование: {iteration.name}, {iteration.type.facility_type_name}, {iteration.workshop.name}, {iteration.scada_scheme.scheme_name}''')
-                    
-            facility_id = int(input('На какой установке (ID установки) будет работать сотрудник: '))
+        facility_in = list_for_facilityes(self.facility_repository)
 
-            if self.facility_repository.get_by_ID(facility_id):
+        if not facility_in:
+            print('Установки под указанным номером не обнаружено')
+            return
 
-                print('\nДолжности:')
-                for iteration in self.posts_repository.get_all():
-                    print(f'''ID: {iteration.post_ID}, Наименование: {iteration.post_name}''')
+        post_in = list_for_posts(self.posts_repository)
 
-                post = int(input('Должность сотрудника (ID должности): '))
+        if not post_in:
+            print('Должности под указанным номером не обнаружено')
+            return
 
-                if self.posts_repository.get_by_ID(post):
-                    
-                    new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
-                    if new_hire == 1:
-                        hire_date = datetime.today()
-                    elif new_hire == 2:
-                        hire_date = int(input('Дата найма сотрудника (год-месяц-число): '))
-                    login = str(input('Новый логин сотрудника: '))
-                    password = str(input('Новый личный пароль сотруднка: '))
+        login = str(input('Новый логин сотрудника: '))
+        password = str(input('Новый личный пароль сотруднка: '))
 
-                    facility_in = self.facility_repository.get_by_ID(facility_id)
-                    post_in = self.posts_repository.get_by_ID(post)
+        upd_user = self.user_repository.update(
+            edit_user.user_id, 
+            new_user = UserIn(
+                surname, 
+                name, 
+                fathersname, 
+                facility_in, 
+                post_in, 
+                edit_user.hire_date, 
+                login, 
+                password)
+            )
 
-                    upd_user = self.user_repository.update(edit_user, new_user = UserIn(surname, name, fathersname, facility_in, post_in, hire_date, login, password))
-
-                    print(f'''ID {upd_user.user_id}, ФИО: {upd_user.surname} {upd_user.name} {upd_user.fathersname}, установка: {upd_user.facility.name}, должность: {upd_user.post.post_name}, Дата найма: {upd_user.hire_date}, Логин {upd_user.login}''')
-                else:
-                    print('Должности с указанным ID не обнаружено')
-            else:
-                print('Установки с указанным ID не обнаружено')
-        else:
-            print('Сотрудника с данным ID не обнаружено')
+        print(upd_user)
+                
         input('Нажмите Enter что бы продолжить')
 
 
@@ -199,7 +191,7 @@ class TerminalClient:
         
         # Подсказка: надо описать dunder метод
         for iteration in self.user_repository.get_all():
-            print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.post_name}''')
+            print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.name}''')
             
         deleted_user = input('Введите ID сотрудника, чью запись хотите удалить: ')
         acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
