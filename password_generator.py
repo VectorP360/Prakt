@@ -9,7 +9,6 @@ def password_generator(password_length: int):
     used_numbers = False
     used_symbols = False
 
-
     while not used_letters or not used_capital or not used_numbers or not used_symbols:
         used_letters = False
         used_capital = False
@@ -29,5 +28,3 @@ def password_generator(password_length: int):
                 used_symbols = True
 
     return final_password
-
-print(password_generator(8))
