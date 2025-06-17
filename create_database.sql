@@ -23,7 +23,7 @@ CREATE TABLE facility_type(
 -- Пробелы, которые идут после символов, сокращаются до одного и тоже считаются символом. 
 -- Например "word     " (9 символов) --> "word " (5 символов)
 
-CREATE TABLE post(
+CREATE TABLE posts(
     post_id SERIAL PRIMARY KEY,
     name VARCHAR(128)
 );
@@ -66,7 +66,7 @@ CREATE TABLE scada_scheme(
 
 -- Записи можно разграничить. В самом низу пишутся поля, которые будут внешними ключами
 
-CREATE TABLE user(
+CREATE TABLE users(
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(128),
     surname VARCHAR(128),
@@ -78,6 +78,6 @@ CREATE TABLE user(
     facility_id INTEGER,
     post_id INTEGER,
 
-    FOREIGN KEY (facility_id) REFERENCES facility_id (facility_ID),
+    FOREIGN KEY (facility_id) REFERENCES facility (facility_ID),
     FOREIGN KEY (post_id) REFERENCES posts (post_id)
 );

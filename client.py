@@ -59,37 +59,42 @@ class TerminalClient:
     # Не бойся давать переменным более осмысленные названия
     def add_user(self):
         
-        print('Для создания записи о сотруднике укажите все перечисленные данные:')
-        surname = str(input('Фамилия: '))
-        name = str(input('Имя: '))
-        fathersname = str(input('Отчество: '))
-        
-        # TODO: Дополнить класс Facility таким образом, 
-        # чтобы при передаче объекта класса Facility в print печатались все данный в таком формате, как указано ниже. [X]
-        # Нужно использовать dunder метод
-        
-        new_facility = list_for_facilityes(self.facility_repository)
-        if not new_facility:
-            print('Установки под данным номером не обнаружено')
-            input('Нажмите Enter что бы продолжить ')
+        try:
+            print('Для создания записи о сотруднике укажите все перечисленные данные:')
+            surname = str(input('Фамилия: '))
+            name = str(input('Имя: '))
+            fathersname = str(input('Отчество: '))
+            
+            # TODO: Дополнить класс Facility таким образом, 
+            # чтобы при передаче объекта класса Facility в print печатались все данный в таком формате, как указано ниже. [X]
+            # Нужно использовать dunder метод
+            
+            new_facility = list_for_facilityes(self.facility_repository)
+            if not new_facility:
+                print('Установки под данным номером не обнаружено')
+                input('Нажмите Enter что бы продолжить ')
+                return
+
+            new_post = list_for_posts(self.posts_repository)
+            if not new_post:
+                print('Должности под данным номером не обнаружено')
+                input('Нажмите Enter что бы продолжить ')
+                return
+
+            new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
+            
+            if new_hire == 1:
+                hire_date = datetime.today()
+            elif new_hire == 2:
+                hire_date = datetime.strptime(str(input('Дата найма сотрудника (год-месяц-число): ')), '%y-%m-%d')
+
+            login = str(input('Логин сотрудника: '))
+        except KeyboardInterrupt:
+            print('\nВыполнение программы прервано!')
+            input('Нажмите Enter что бы продолжить')
             return
 
-        new_post = list_for_posts(self.posts_repository)
-        if not new_post:
-            print('Должности под данным номером не обнаружено')
-            input('Нажмите Enter что бы продолжить ')
-            return
-
-        new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
-        
-        if new_hire == 1:
-            hire_date = datetime.today()
-        elif new_hire == 2:
-            hire_date = datetime.strptime(str(input('Дата найма сотрудника (год-месяц-число): ')), '%y-%m-%d')
-
-        login = str(input('Логин сотрудника: '))
-
-        if new_post.post_ID == 1:
+        if new_post.post_ID == 1 or new_post.post_ID == 2:
             password_length = 12
         else:
             password_length = 8
@@ -141,66 +146,75 @@ class TerminalClient:
 
     def update_user(self):
         
-        print('Сотрудники: ')
-        edit_user = list_for_users(self.user_repository)
+        try:
+            print('Сотрудники: ')
+            edit_user = list_for_users(self.user_repository)
 
-        if not edit_user:
-            print('Сотрудника под данным номером не обнаружено')
-            return
-            
-        surname = str(input('Новая фамилия: '))
-        name = str(input('Новое имя: '))
-        fathersname = str(input('Новое отчество: '))
-            
-        facility_in = list_for_facilityes(self.facility_repository)
-
-        if not facility_in:
-            print('Установки под указанным номером не обнаружено')
-            return
-
-        post_in = list_for_posts(self.posts_repository)
-
-        if not post_in:
-            print('Должности под указанным номером не обнаружено')
-            return
-
-        login = str(input('Новый логин сотрудника: '))
-        password = str(input('Новый личный пароль сотруднка: '))
-
-        upd_user = self.user_repository.update(
-            edit_user.user_id, 
-            new_user = UserIn(
-                surname, 
-                name, 
-                fathersname, 
-                facility_in, 
-                post_in, 
-                edit_user.hire_date, 
-                login, 
-                password)
-            )
-
-        print(upd_user)
+            if not edit_user:
+                print('Сотрудника под данным номером не обнаружено')
+                return
                 
-        input('Нажмите Enter что бы продолжить')
+            surname = str(input('Новая фамилия: '))
+            name = str(input('Новое имя: '))
+            fathersname = str(input('Новое отчество: '))
+                
+            facility_in = list_for_facilityes(self.facility_repository)
+
+            if not facility_in:
+                print('Установки под указанным номером не обнаружено')
+                return
+
+            post_in = list_for_posts(self.posts_repository)
+
+            if not post_in:
+                print('Должности под указанным номером не обнаружено')
+                return
+
+            login = str(input('Новый логин сотрудника: '))
+            password = str(input('Новый личный пароль сотруднка: '))
+
+            upd_user = self.user_repository.update(
+                edit_user.user_id, 
+                new_user = UserIn(
+                    surname, 
+                    name, 
+                    fathersname, 
+                    facility_in, 
+                    post_in, 
+                    edit_user.hire_date, 
+                    login, 
+                    password)
+                )
+
+            print(upd_user)
+                    
+            input('Нажмите Enter что бы продолжить')
+        
+        except KeyboardInterrupt:
+            print('Редактирование записи прервано!')
+            input('Нажмите Enter что бы продолжить')
+            return
 
 
     def delete_user(self):
-                
+        
+        users_id = []
         print('\nСотрудники:')
         
-        # Подсказка: надо описать dunder метод
         for iteration in self.user_repository.get_all():
             print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.name}''')
+            users_id.append(iteration.user_id)
             
         deleted_user = input('Введите ID сотрудника, чью запись хотите удалить: ')
-        acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
 
-        if acception == 'y':
-                        
-            if self.user_repository.delete(deleted_user):
-                print('Удаление произшло успешно!')
-            else:
-                print('Удаление не состоялось!')
-            
-            input('Нажмите Enter что бы продолжить')
+        if deleted_user not in users_id:
+            acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
+
+            if acception == 'y':
+                            
+                if self.user_repository.delete(deleted_user):
+                    print('Удаление произшло успешно!')
+                else:
+                    print('Удаление не состоялось!')
+                
+                input('Нажмите Enter что бы продолжить')

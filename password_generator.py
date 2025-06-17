@@ -1,11 +1,7 @@
 from random import sample
+import string
 
-letters = 'abcdefghijklmnopqrstuvwxyz'
-capital_letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-numbers = '0123456789'
-symbols = '!\/|#@=+-_*&?'
-
-all_symbols = letters + capital_letters + numbers + symbols
+symbols = string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation
 
 def password_generator(password_length: int): 
     used_letters = False
@@ -20,17 +16,18 @@ def password_generator(password_length: int):
         used_numbers = False
         used_symbols = False
 
-        final_password = "".join(sample(all_symbols, password_length))
+        final_password = "".join(sample(symbols , password_length))
 
         for iteration in final_password:
-            if iteration in letters:
+            if iteration in string.ascii_lowercase:
                 used_letters = True
-            if iteration in capital_letters:
+            if iteration in string.ascii_uppercase:
                 used_capital = True
-            if iteration in numbers:
+            if iteration in string.digits:
                 used_numbers = True
-            if iteration in symbols:
+            if iteration in string.punctuation:
                 used_symbols = True
 
-
     return final_password
+
+print(password_generator(8))
