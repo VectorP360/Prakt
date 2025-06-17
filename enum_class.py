@@ -6,6 +6,8 @@ class NumChoice(IntEnum):
     select_user = 2
     edit_user = 3
     delete_user = 4
+    edit_by_excel = 5
+    create_by_excel = 6
     exit_programm = 0
 
     select_id = 1

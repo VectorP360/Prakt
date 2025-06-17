@@ -68,8 +68,8 @@ CREATE TABLE scada_scheme(
 
 CREATE TABLE users(
     user_id SERIAL PRIMARY KEY,
-    name VARCHAR(128),
     surname VARCHAR(128),
+    name VARCHAR(128),
     fathersname VARCHAR(128),
     hire_date DATE,
     login VARCHAR(128),

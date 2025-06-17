@@ -25,7 +25,9 @@ class TerminalClient:
                 '1: Создание новой записи\n',
                 '2: Просмотр записи по ID / всех записей\n',
                 '3: Редактирование записи\n',
-                '4: удаление записи\n\n',
+                '4: удаление записи\n',
+                '5: переместить пользователя на другую установку, через excel файл\n'
+                '6: Добавление записей из excel файла'
                 'Для выхода из приложения введие 0\n')
 
             operation = int(input('Операция :'))
@@ -42,6 +44,12 @@ class TerminalClient:
 
                 case NumChoice.delete_user:
                     self.delete_user()
+
+                case NumChoice.edit_by_excel:
+                    pass
+
+                case NumChoice.create_by_excel:
+                    pass
 
                 case NumChoice.exit_programm:
                     return
