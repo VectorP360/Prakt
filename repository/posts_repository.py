@@ -33,6 +33,19 @@ class PostsRepository:
             return PostsOut(fetched_row[0], fetched_row[1])
         else:
             return None
+        
+
+    def get_by_name(self, name: str) -> Optional[PostsOut]:
+        cursor = self.__connection.cursor()
+
+        cursor.execute('''SELECT post_id, name FROM posts WHERE name = %s''', (name,))
+
+        fetched_row = cursor.fetchone()
+        
+        if fetched_row:
+            return PostsOut(fetched_row[0], fetched_row[1])
+        else:
+            return None
     
     
     def get_all(self) -> List[PostsOut]:

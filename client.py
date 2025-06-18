@@ -1,12 +1,14 @@
 from datetime import datetime
 
+from openpyxl import load_workbook
+from openpyxl.utils.exceptions import InvalidFileException
+from transliterate import translit
+
 from repository.repository import RepositoryManager
 from schemas.user import UserIn, UserOut
 from update_id_to_list import list_for_users, list_for_facilityes, list_for_posts
 from password_generator import password_generator
 from enum_class import NumChoice , StrChoice
-
-# TODO: возможность пользователя выходить из любого этапа на стартовый [?]
 
 class TerminalClient:
     def __init__(self, manager: RepositoryManager): 
@@ -27,7 +29,7 @@ class TerminalClient:
                 '3: Редактирование записи\n',
                 '4: удаление записи\n',
                 '5: переместить пользователя на другую установку, через excel файл\n'
-                '6: Добавление записей из excel файла'
+                '6: Добавление записей из excel файла\n'
                 'Для выхода из приложения введие 0\n')
 
             operation = int(input('Операция :'))
@@ -46,10 +48,10 @@ class TerminalClient:
                     self.delete_user()
 
                 case NumChoice.edit_by_excel:
-                    pass
+                    self.edit_user_from_excel()
 
                 case NumChoice.create_by_excel:
-                    pass
+                    self.add_user_from_excel()
 
                 case NumChoice.exit_programm:
                     return
@@ -88,7 +90,7 @@ class TerminalClient:
                 case NumChoice.old_hire_user:
                     hire_date = datetime.strptime(str(input('Дата найма сотрудника (год-месяц-число): ')), '%y-%m-%d')
 
-            login = str(input('Логин сотрудника: '))
+            login = translit(name[:3] + surname[:3] + fathersname[:3],"ru", reversed="true")
         except KeyboardInterrupt:
             print('\nВыполнение программы прервано!')
             input('Нажмите Enter что бы продолжить')
@@ -236,3 +238,102 @@ class TerminalClient:
             print('Удаление записи прервано!')
             input('Нажмите Enter что бы продолжить')
             return
+        
+
+    def edit_user_from_excel(self):
+
+        try:
+            excel_file = input('Введите путь до требуемого excel файла: ')
+            workbook = load_workbook(excel_file)    
+        except FileNotFoundError:
+            print('Указанный файл не найден')
+            input('Нажмите Enter что бы продолжить')
+            return
+        except InvalidFileException:
+            print('Введён файл не подходящего формата!')
+            input('Нажмите Enter что бы продолжить')
+            return
+        
+        sheet = workbook.active
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            edited_user = self.user_repository.get_by_FIO(
+                name=row[1],
+                surname=row[0],
+                fathersname=row[2],
+                facility_name=row[5],
+                post_name=row[3])
+
+            if row[4]:
+                edited_user.post = self.posts_repository.get_by_name(name=row[4])
+
+            if row[6]:
+                edited_user.facility = self.facility_repository.get_by_name(name=row[6])
+
+            print(self.user_repository.update(
+                edited_user.user_id,
+                new_user = UserIn(
+                    edited_user.surname,
+                    edited_user.name,
+                    edited_user.fathersname,
+                    edited_user.facility,
+                    edited_user.post,
+                    edited_user.hire_date,
+                    edited_user.login,
+                    edited_user.password)))
+
+
+    def add_user_from_excel(self):
+        try:
+            excel_file = str(input('Введите путь до требуемого excel файла: '))
+            workbook = load_workbook(excel_file)    
+        except FileNotFoundError:
+            print('Указанный файл не найден')
+            input('Нажмите Enter что бы продолжить')
+            return
+        except InvalidFileException:
+            print('Введён файл не подходящего формата!')
+            input('Нажмите Enter что бы продолжить')
+            return
+        sheet = workbook.active
+        data = []
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+
+            final_date = row[3]
+            if type(row[3]) != datetime:
+                final_date = datetime.today()
+
+            fetched_post = self.posts_repository.get_by_name(row[4])
+
+            fetched_facility = self.facility_repository.get_by_name(row[5])
+
+            login = translit(row[0][:3] + row[1][:3] + row[2][:3],"ru", reversed="true")
+
+            match fetched_post.name:
+                case StrChoice.gendir_post:
+                    password_length = 12
+                case StrChoice.glavspec_post:
+                    password_length = 12
+                case StrChoice.starspec_post:
+                    password_length = 8
+                case StrChoice.spec1categ_post:
+                    password_length = 8
+
+            password = password_generator(password_length)
+
+            data.append([row[0],row[1],row[2],fetched_facility,fetched_post,final_date,login,password])
+
+        for iteration in data:
+            new_user = self.user_repository.create(
+                new_user = UserIn(
+                    surname = iteration[1], 
+                    name = iteration[0], 
+                    fathersname = iteration[2], 
+                    facility = fetched_facility, 
+                    post = fetched_post, 
+                    hire_date = iteration[5], 
+                    login = iteration[6], 
+                    password = iteration[7]))
+            print(new_user)
+        input('Нажмите Enter что бы продолжить')

@@ -15,7 +15,7 @@ class FacilityRepository:
         cursor.execute(
         '''
         INSERT INTO facility (facility_name, facility_type_id, workshop_id, scada_scheme_id) VALUES (%s,%s,%s,%s)
-        RETURNING facility_id, facility_name,facility_type_id, workshop_id
+        RETURNING facility_id, name,facility_type_id, workshop_id
         ''', (new_facility.name, new_facility.type.facility_type_id, new_facility.workshop.workshop_id,)
         )
         self.__connection.commit()
@@ -47,6 +47,24 @@ class FacilityRepository:
         else:
             return None
     
+
+    def get_by_name(self, name: str) -> Optional[FacilityOut]:
+        cursor = self.__connection.cursor()
+
+        cursor.execute('''SELECT facility_id, facility.name, type_id, workshop_id FROM facility WHERE facility.name = %s''', (name,))
+
+        fetched_row = cursor.fetchone()
+        
+        if fetched_row:
+            return FacilityOut(
+                fetched_row[0],
+                fetched_row[1], 
+                type = fetched_row[2], 
+                workshop = fetched_row[3]
+                )
+        else:
+            return None
+
     
     def get_all(self) -> List[FacilityOut]:
         cursor = self.__connection.cursor()
