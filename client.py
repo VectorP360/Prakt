@@ -1,6 +1,7 @@
 from datetime import datetime
+import os
 
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from transliterate import translit
 
@@ -9,6 +10,7 @@ from schemas.user import UserIn, UserOut
 from update_id_to_list import list_for_users, list_for_facilityes, list_for_posts
 from password_generator import password_generator
 from enum_class import NumChoice , StrChoice
+from test_file import read_from_excel, create_raport
 
 class TerminalClient:
     def __init__(self, manager: RepositoryManager): 
@@ -28,8 +30,8 @@ class TerminalClient:
                 '2: Просмотр записи по ID / всех записей\n',
                 '3: Редактирование записи\n',
                 '4: удаление записи\n',
-                '5: переместить пользователя на другую установку, через excel файл\n'
-                '6: Добавление записей из excel файла\n'
+                '5: переместить пользователя на другую установку, через excel файл\n',
+                '6: Добавление записей из excel файла\n',
                 'Для выхода из приложения введие 0\n')
 
             operation = int(input('Операция :'))
@@ -256,84 +258,73 @@ class TerminalClient:
         
         sheet = workbook.active
 
+        for row in sheet.iter_rows(min_row=1,max_row=1,values_only=True):
+            if (row[0] != 'Имя' or 
+                row[1] != 'Фамилия' or 
+                row[2] != 'Отчество' or 
+                row[3] != 'Текущая должность' or 
+                row[4] != 'Новая должность' or 
+                row[5] != 'Текущая установка' or 
+                row[6] != 'Новая установка'):
+
+                return print('Файл не соответствует формату!\n')
+
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            edited_user = self.user_repository.get_by_FIO(
-                name=row[1],
-                surname=row[0],
-                fathersname=row[2],
-                facility_name=row[5],
-                post_name=row[3])
+            try:
+                edited_user = self.user_repository.get_by_FIO(
+                    name=row[0],
+                    surname=row[1],
+                    fathersname=row[2],
+                    facility_name=row[5],
+                    post_name=row[3])
 
-            if row[4]:
-                edited_user.post = self.posts_repository.get_by_name(name=row[4])
+                if row[4]:
+                    edited_user.post = self.posts_repository.get_by_name(name=row[4])
 
-            if row[6]:
-                edited_user.facility = self.facility_repository.get_by_name(name=row[6])
+                if row[6]:
+                    edited_user.facility = self.facility_repository.get_by_name(name=row[6])
 
-            print(self.user_repository.update(
-                edited_user.user_id,
-                new_user = UserIn(
-                    edited_user.surname,
-                    edited_user.name,
-                    edited_user.fathersname,
-                    edited_user.facility,
-                    edited_user.post,
-                    edited_user.hire_date,
-                    edited_user.login,
-                    edited_user.password)))
-
+                print(self.user_repository.update(
+                    edited_user.user_id,
+                    new_user = UserIn(
+                        edited_user.surname,
+                        edited_user.name,
+                        edited_user.fathersname,
+                        edited_user.facility,
+                        edited_user.post,
+                        edited_user.hire_date,
+                        edited_user.login,
+                        edited_user.password)))
+                
+            except AttributeError:
+                pass
 
     def add_user_from_excel(self):
-        try:
-            excel_file = str(input('Введите путь до требуемого excel файла: '))
-            workbook = load_workbook(excel_file)    
-        except FileNotFoundError:
-            print('Указанный файл не найден')
-            input('Нажмите Enter что бы продолжить')
+
+        data = read_from_excel(self.posts_repository, self.facility_repository)
+
+        if data == None:
             return
-        except InvalidFileException:
-            print('Введён файл не подходящего формата!')
-            input('Нажмите Enter что бы продолжить')
-            return
-        sheet = workbook.active
-        data = []
+        
+        print('чтение успешно!')
 
-        for row in sheet.iter_rows(min_row=2, values_only=True):
+        # create_raport(data)
+        
+        # for iteration in data:
 
-            final_date = row[3]
-            if type(row[3]) != datetime:
-                final_date = datetime.today()
+        #     fetched_facility = self.facility_repository.get_by_name(iteration[3])
+        #     fetched_post = self.posts_repository.get_by_name(iteration[4])
 
-            fetched_post = self.posts_repository.get_by_name(row[4])
+        #     new_user = self.user_repository.create(
+        #         new_user = UserIn(
+        #             surname = iteration[1], 
+        #             name = iteration[0], 
+        #             fathersname = iteration[2], 
+        #             facility = fetched_facility, 
+        #             post = fetched_post, 
+        #             hire_date = iteration[5], 
+        #             login = iteration[6], 
+        #             password = iteration[7]))
 
-            fetched_facility = self.facility_repository.get_by_name(row[5])
-
-            login = translit(row[0][:3] + row[1][:3] + row[2][:3],"ru", reversed="true")
-
-            match fetched_post.name:
-                case StrChoice.gendir_post:
-                    password_length = 12
-                case StrChoice.glavspec_post:
-                    password_length = 12
-                case StrChoice.starspec_post:
-                    password_length = 8
-                case StrChoice.spec1categ_post:
-                    password_length = 8
-
-            password = password_generator(password_length)
-
-            data.append([row[0],row[1],row[2],fetched_facility,fetched_post,final_date,login,password])
-
-        for iteration in data:
-            new_user = self.user_repository.create(
-                new_user = UserIn(
-                    surname = iteration[1], 
-                    name = iteration[0], 
-                    fathersname = iteration[2], 
-                    facility = fetched_facility, 
-                    post = fetched_post, 
-                    hire_date = iteration[5], 
-                    login = iteration[6], 
-                    password = iteration[7]))
-            print(new_user)
+        #     print(new_user)
         input('Нажмите Enter что бы продолжить')

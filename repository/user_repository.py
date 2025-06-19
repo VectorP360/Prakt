@@ -81,7 +81,7 @@ class UserRepository:
             return None
         
 
-    def get_by_FIO(self, surname: str, name: str, fathersname: str, facility_name: str, post_name) -> Optional[UserOut]:
+    def get_by_FIO(self, surname: str, name: str, fathersname: str, facility_name: str, post_name: str) -> Optional[UserOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute('''SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
