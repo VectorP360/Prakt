@@ -25,15 +25,21 @@ class FacilityRepository:
         return FacilityOut(
             facility_id=fetched_row[0],
             name=fetched_row[1],
-            type= new_facility.type.facility_type_id, 
-            workshop= new_facility.workshop.workshop_id
+            type= new_facility.type, 
+            workshop= new_facility.workshop
             )
         
 
     def get_by_ID(self, facility_id: int) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT facility_id, facility.name, type_id, workshop_id FROM facility WHERE facility_id = %s''', (facility_id,))
+        cursor.execute('''
+                       SELECT facility_id, facility.name, type_id, facility_type.type_name, workshop_id, workshop.name 
+                       FROM facility 
+                        JOIN facility_type ON facility.type_id = facility_type.facility_type_id
+                        JOIN workshop USING (workshop_id)
+                       WHERE facility.name = %s
+                       ''', (facility_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -41,8 +47,14 @@ class FacilityRepository:
             return FacilityOut(
                 fetched_row[0],
                 fetched_row[1], 
-                type = fetched_row[2], 
-                workshop = fetched_row[3]
+                type = FacilityTypeOut(
+                    facility_type_id=fetched_row[2],
+                    name = fetched_row[3]
+                ), 
+                workshop = WorkshopOut(
+                    workshop_id= fetched_row[4],
+                    name= fetched_row[5]
+                )
                 )
         else:
             return None
@@ -51,7 +63,13 @@ class FacilityRepository:
     def get_by_name(self, name: str) -> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT facility_id, facility.name, type_id, workshop_id FROM facility WHERE facility.name = %s''', (name,))
+        cursor.execute('''
+                       SELECT facility_id, facility.name, type_id, facility_type.type_name, workshop_id, workshop.name 
+                       FROM facility 
+                        JOIN facility_type ON facility.type_id = facility_type.facility_type_id
+                        JOIN workshop USING (workshop_id)
+                       WHERE facility.name = %s
+                       ''', (name,))
 
         fetched_row = cursor.fetchone()
         
@@ -59,8 +77,14 @@ class FacilityRepository:
             return FacilityOut(
                 fetched_row[0],
                 fetched_row[1], 
-                type = fetched_row[2], 
-                workshop = fetched_row[3]
+                type = FacilityTypeOut(
+                    facility_type_id=fetched_row[2],
+                    name = fetched_row[3]
+                ), 
+                workshop = WorkshopOut(
+                    workshop_id= fetched_row[4],
+                    name= fetched_row[5]
+                )
                 )
         else:
             return None

@@ -11,21 +11,21 @@ from repository.user_repository import UserIn
 from repository.facility_repository import FacilityRepository
 from repository.posts_repository import PostsRepository
 from password_generator import password_generator
-from issue_classes.add_issue.facility_issue import FacilityIssue
-from issue_classes.add_issue.fathersname_issue import FathresnameIssue
-from issue_classes.add_issue.hire_date_issue import HireDateIssue
-from issue_classes.add_issue.name_issue import NameIssue
-from issue_classes.add_issue.post_issue import PostIssue
-from issue_classes.add_issue.surname_issue import SurnameIssue
+from handler_classes.add_handler.facility_handler import FacilityHandler
+from handler_classes.add_handler.fathersname_handler import FathresnameHandler
+from handler_classes.add_handler.hire_date_handler import HireDateHandler
+from handler_classes.add_handler.name_handler import NameHandler
+from handler_classes.add_handler.post_handler import PostHandler
+from handler_classes.add_handler.surname_handler import SurnameHandler
 
 def read_from_excel(posts_repository: PostsRepository, facility_repository : FacilityRepository) -> Optional[list]:
 
-    name = NameIssue()
-    surname = SurnameIssue()
-    fathersname = FathresnameIssue()
-    hire_date = HireDateIssue()
-    post = PostIssue()
-    facility = FacilityIssue()
+    name = NameHandler()
+    surname = SurnameHandler()
+    fathersname = FathresnameHandler()
+    hire_date = HireDateHandler()
+    post = PostHandler()
+    facility = FacilityHandler()
 
     name.set_next(surname).set_next(fathersname).set_next(hire_date).set_next(post).set_next(facility)
 
@@ -45,7 +45,6 @@ def read_from_excel(posts_repository: PostsRepository, facility_repository : Fac
     
     row = sheet[1]
     if not name.handle(row):
-        print("НЕПРАВИЛЬНО")
         return
 
     for row in sheet.iter_rows(min_row=2, values_only=True):

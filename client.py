@@ -1,16 +1,22 @@
 from datetime import datetime
-import os
 
-from openpyxl import load_workbook, Workbook
+from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from transliterate import translit
 
 from repository.repository import RepositoryManager
-from schemas.user import UserIn, UserOut
+from schemas.user import UserIn
 from update_id_to_list import list_for_users, list_for_facilityes, list_for_posts
 from password_generator import password_generator
 from enum_class import NumChoice , StrChoice
-from test_file import read_from_excel, create_raport
+from excel_reader import read_from_excel, create_raport
+from handler_classes.edit_handler.name_handler import NameHandler
+from handler_classes.edit_handler.surname_handler import SurnameHandler
+from handler_classes.edit_handler.fathersname_handler import FathresnameHandler
+from handler_classes.edit_handler.now_post_handler import NowPostHandler
+from handler_classes.edit_handler.new_post_handler import NewPostHandler
+from handler_classes.edit_handler.now_facility_handler import NowFacilityHandler
+from handler_classes.edit_handler.new_facility_handler import NewFacilityHandler
 
 class TerminalClient:
     def __init__(self, manager: RepositoryManager): 
@@ -244,6 +250,14 @@ class TerminalClient:
 
     def edit_user_from_excel(self):
 
+        name = NameHandler()
+        surname = SurnameHandler()
+        fathersname = FathresnameHandler()
+        now_post = NowPostHandler()
+        new_post = NewPostHandler()
+        now_facility = NowFacilityHandler()
+        new_facility = NewFacilityHandler()
+
         try:
             excel_file = input('Введите путь до требуемого excel файла: ')
             workbook = load_workbook(excel_file)    
@@ -257,17 +271,12 @@ class TerminalClient:
             return
         
         sheet = workbook.active
+        
+        name.set_next(surname).set_next(fathersname).set_next(now_post).set_next(new_post).set_next(now_facility).set_next(new_facility)
 
-        for row in sheet.iter_rows(min_row=1,max_row=1,values_only=True):
-            if (row[0] != 'Имя' or 
-                row[1] != 'Фамилия' or 
-                row[2] != 'Отчество' or 
-                row[3] != 'Текущая должность' or 
-                row[4] != 'Новая должность' or 
-                row[5] != 'Текущая установка' or 
-                row[6] != 'Новая установка'):
-
-                return print('Файл не соответствует формату!\n')
+        row = sheet[1]
+        if not name.handle(row):
+            return print('Файл не соответствует формату!\n')
 
         for row in sheet.iter_rows(min_row=2, values_only=True):
             try:
@@ -305,26 +314,24 @@ class TerminalClient:
 
         if data == None:
             return
+
+        create_raport(data)
         
-        print('чтение успешно!')
+        for iteration in data:
 
-        # create_raport(data)
-        
-        # for iteration in data:
+            fetched_facility = self.facility_repository.get_by_name(iteration[3])
+            fetched_post = self.posts_repository.get_by_name(iteration[4])
 
-        #     fetched_facility = self.facility_repository.get_by_name(iteration[3])
-        #     fetched_post = self.posts_repository.get_by_name(iteration[4])
+            new_user = self.user_repository.create(
+                new_user = UserIn(
+                    surname = iteration[1], 
+                    name = iteration[0], 
+                    fathersname = iteration[2], 
+                    facility = fetched_facility, 
+                    post = fetched_post, 
+                    hire_date = iteration[5], 
+                    login = iteration[6], 
+                    password = iteration[7]))
 
-        #     new_user = self.user_repository.create(
-        #         new_user = UserIn(
-        #             surname = iteration[1], 
-        #             name = iteration[0], 
-        #             fathersname = iteration[2], 
-        #             facility = fetched_facility, 
-        #             post = fetched_post, 
-        #             hire_date = iteration[5], 
-        #             login = iteration[6], 
-        #             password = iteration[7]))
-
-        #     print(new_user)
+            print(new_user)
         input('Нажмите Enter что бы продолжить')
