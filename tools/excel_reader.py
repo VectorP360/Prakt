@@ -12,7 +12,7 @@ from transliterate import translit
 from enums import UserPost
 from tools.password_generator import PasswordGenerator
 from repository.repository import RepositoryManager
-from handlers.add_handler import (
+from handlers import (
     FacilityHandler, 
     FathresnameHandler, 
     HireDateHandler, 
@@ -103,10 +103,10 @@ class NewUsersExcelReader:
     
 
     def create_raport(self, users_data: List[Tuple]):
-        if not os.path.exists('./raports'):
-            os.mkdir('./raports')
+        if not os.path.exists('./temp/raports'):
+            os.mkdir('./temp/raports')
 
-        raportname = str('./raports/raport' + str(datetime.date(datetime.today())) + '.xlsx')
+        raportname = str('./temp/raports/raport' + str(datetime.date(datetime.today())) + '.xlsx')
 
         if not os.path.exists(raportname):
             raport = Workbook()

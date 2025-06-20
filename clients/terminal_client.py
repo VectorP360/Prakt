@@ -11,13 +11,13 @@ from schemas.user import UserIn, UserOut, PostsOut, FacilityOut
 from tools import PasswordGenerator, NewUsersExcelReader
 from enums import Command, UserPost, Acceptance
 
-from handlers.edit_handler.name_handler import NameHandler
-from handlers.edit_handler.surname_handler import SurnameHandler
-from handlers.edit_handler.fathersname_handler import FathresnameHandler
-from handlers.edit_handler.now_post_handler import NowPostHandler
-from handlers.edit_handler.new_post_handler import NewPostHandler
-from handlers.edit_handler.now_facility_handler import NowFacilityHandler
-from handlers.edit_handler.new_facility_handler import NewFacilityHandler
+from handlers.name_handler import NameHandler
+from handlers.surname_handler import SurnameHandler
+from handlers.fathersname_handler import FathresnameHandler
+from handlers.now_post_handler import NowPostHandler
+from handlers.new_post_handler import NewPostHandler
+from handlers.now_facility_handler import NowFacilityHandler
+from handlers.new_facility_handler import NewFacilityHandler
 
 
 class TerminalClient:
@@ -218,7 +218,7 @@ class TerminalClient:
                 
             deleted_user = int(input('Введите ID сотрудника, чью запись хотите удалить: '))
 
-            if deleted_user not in users_id:
+            if deleted_user in users_id:
                 acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
 
                 if acception == Acceptance.YES: 
