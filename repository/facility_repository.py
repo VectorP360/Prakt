@@ -9,7 +9,7 @@ class FacilityRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, new_facility: FacilityIn)-> FacilityOut:
+    def create(self, new_facility: FacilityIn)-> Optional[FacilityOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -21,13 +21,15 @@ class FacilityRepository:
         self.__connection.commit()
         
         fetched_row = cursor.fetchone()
-
-        return FacilityOut(
-            facility_id=fetched_row[0],
-            name=fetched_row[1],
-            type= new_facility.type, 
-            workshop= new_facility.workshop
-            )
+        
+        if fetched_row:
+            return FacilityOut(
+                facility_id=fetched_row[0],
+                name=fetched_row[1],
+                type= new_facility.type, 
+                workshop= new_facility.workshop
+                )
+        return None
         
 
     def get_by_ID(self, facility_id: int) -> Optional[FacilityOut]:

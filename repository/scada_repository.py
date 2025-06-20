@@ -10,7 +10,7 @@ class ScadaSchemeRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, scheme_in: ScadaSchemeIn)-> ScadaSchemeIn:
+    def create(self, scheme_in: ScadaSchemeIn)-> Optional[ScadaSchemeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -23,10 +23,11 @@ class ScadaSchemeRepository:
         self.__connection.commit()
 
         fetched_row = cursor.fetchone()
-        
-        return ScadaSchemeOut(scheme_ID = fetched_row[0], 
-                              name = fetched_row[1], 
-                              facility = scheme_in.facility)
+        if fetched_row:
+            return ScadaSchemeOut(scheme_id = fetched_row[0],
+                                name = fetched_row[1], 
+                                facility = scheme_in.facility)
+        return None
         
 
     def get_by_ID(self, scada_scheme_id: str) -> Optional[ScadaSchemeOut]:
@@ -45,7 +46,7 @@ class ScadaSchemeRepository:
         
         if fetched_row:
             return ScadaSchemeOut(
-                scada_scheme_id = fetched_row[0], 
+                scheme_id = fetched_row[0], 
                 name = fetched_row[1],
                 facility = FacilityOut(
                     facility_id = fetched_row[2],
@@ -79,7 +80,7 @@ class ScadaSchemeRepository:
         result = []        
         for record in cursor.fetchall():
             new_obj = ScadaSchemeOut(
-                scada_scheme_id = record[0], 
+                scheme_id = record[0], 
                 name = record[1],
                 facility = FacilityOut(
                     facility_id = record[2],
@@ -114,10 +115,7 @@ class ScadaSchemeRepository:
         if fetched_row:
             return ScadaSchemeOut(scheme_id = fetched_row[0], 
                                   name = fetched_row[1], 
-                                  facility = FacilityOut(
-                                      facility_id = scada_in.facility.facility_id,
-                                      name = scada_in.facility.name
-                                  ))
+                                  facility = scada_in.facility)
         else:
             return None
 
