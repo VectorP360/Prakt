@@ -1,4 +1,4 @@
-from schemas.facility import FacilityOut, FacilityTypeOut, WorkshopOut
+from schemas.facility import FacilityOut
 from schemas.posts import PostsOut
 
 class UserOut:

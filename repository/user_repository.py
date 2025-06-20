@@ -1,16 +1,18 @@
 from typing import List, Optional
-from datetime import date
 
 from psycopg import Connection
 
-from schemas.user import UserOut, UserIn, FacilityOut, PostsOut, FacilityTypeOut, WorkshopOut
-
+from schemas.user import UserOut, UserIn
+from schemas.facility import FacilityOut
+from schemas.posts import PostsOut
+from schemas.facility_types import FacilityTypeOut
+from schemas.workshop import WorkshopOut
 
 class UserRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, new_user: UserIn)-> UserOut:
+    def create(self, new_user: UserIn)-> Optional[UserOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -23,18 +25,20 @@ class UserRepository:
         self.__connection.commit()
         
         fetched_row = cursor.fetchone()
-
-        return UserOut(
-            user_id=fetched_row[0],
-            surname=fetched_row[1],
-            name = fetched_row[2],
-            fathersname = fetched_row[3],
-            facility = new_user.facility,
-            post = new_user.post,
-            hire_date = fetched_row[6],
-            login = fetched_row[7],
-            password = fetched_row[8]
-            )
+        
+        if fetched_row:
+            return UserOut(
+                user_id=fetched_row[0],
+                surname=fetched_row[1],
+                name = fetched_row[2],
+                fathersname = fetched_row[3],
+                facility = new_user.facility,
+                post = new_user.post,
+                hire_date = fetched_row[6],
+                login = fetched_row[7],
+                password = fetched_row[8]
+                )
+        return None
         
 
     def get_by_ID(self, user_id: str) -> Optional[UserOut]:
@@ -212,3 +216,4 @@ class UserRepository:
         self.__connection.commit()
 
         return bool(cursor.rowcount)
+    

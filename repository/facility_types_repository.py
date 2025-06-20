@@ -2,13 +2,14 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from schemas.facility_types import FacilityTypeOut, FacilityTypeOut
+from schemas.facility_types import FacilityTypeOut
+
 
 class FacilityTypesRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, type_name: str)-> FacilityTypeOut:
+    def create(self, type_name: str)-> Optional[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -21,8 +22,9 @@ class FacilityTypesRepository:
         self.__connection.commit()
         
         fetched_row = cursor.fetchone()
-        
-        return FacilityTypeOut(fetched_row[0],fetched_row[1])
+        if fetched_row:
+            return FacilityTypeOut(fetched_row[0],fetched_row[1])
+        return None
         
 
     def get_by_ID(self, type_id: str) -> Optional[FacilityTypeOut]:
