@@ -10,20 +10,20 @@ class AbstractHandler(ABC):
         pass
 
     @abstractmethod
-    def handle(self, request) -> Optional[str]:
+    def handle(self, request) -> bool:
         pass
 
 
 class Handler(AbstractHandler):
 
-    _next_handler: Handler = None
+    _next_handler: Optional[Handler] = None
 
     def set_next(self, handler: Handler) -> Handler:
         self._next_handler = handler
         return handler
 
     @abstractmethod
-    def handle(self, request: Any) -> str:
+    def handle(self, request: Any) -> bool:
         if self._next_handler:
             return self._next_handler.handle(request)
 
