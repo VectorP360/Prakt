@@ -9,7 +9,7 @@ import openpyxl.worksheet
 import openpyxl.worksheet.worksheet
 from transliterate import translit
 
-from enums.enums import UserPost
+from enums import UserPost
 from tools.password_generator import PasswordGenerator
 from repository.repository import RepositoryManager
 from handlers.add_handler import (

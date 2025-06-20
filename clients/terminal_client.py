@@ -9,7 +9,7 @@ from repository.repository import RepositoryManager
 from schemas.user import UserIn, UserOut, PostsOut, FacilityOut
 
 from tools import PasswordGenerator, NewUsersExcelReader
-from enums.enums import Command, UserPost, Acceptance
+from enums import Command, UserPost, Acceptance
 
 from handlers.edit_handler.name_handler import NameHandler
 from handlers.edit_handler.surname_handler import SurnameHandler
