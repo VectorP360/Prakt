@@ -1,22 +1,24 @@
 from datetime import datetime
+from typing import Optional
 
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from transliterate import translit
 
 from repository.repository import RepositoryManager
-from schemas.user import UserIn
-from update_id_to_list import list_for_users, list_for_facilityes, list_for_posts
-from password_generator import password_generator
-from enum_class import NumChoice , StrChoice
-from excel_reader import read_from_excel, create_raport
-from handler_classes.edit_handler.name_handler import NameHandler
-from handler_classes.edit_handler.surname_handler import SurnameHandler
-from handler_classes.edit_handler.fathersname_handler import FathresnameHandler
-from handler_classes.edit_handler.now_post_handler import NowPostHandler
-from handler_classes.edit_handler.new_post_handler import NewPostHandler
-from handler_classes.edit_handler.now_facility_handler import NowFacilityHandler
-from handler_classes.edit_handler.new_facility_handler import NewFacilityHandler
+from schemas.user import UserIn, UserOut, PostsOut, FacilityOut
+
+from tools import PasswordGenerator, NewUsersExcelReader
+from enums.enums import Command, UserPost, Acceptance
+
+from handlers.edit_handler.name_handler import NameHandler
+from handlers.edit_handler.surname_handler import SurnameHandler
+from handlers.edit_handler.fathersname_handler import FathresnameHandler
+from handlers.edit_handler.now_post_handler import NowPostHandler
+from handlers.edit_handler.new_post_handler import NewPostHandler
+from handlers.edit_handler.now_facility_handler import NowFacilityHandler
+from handlers.edit_handler.new_facility_handler import NewFacilityHandler
+
 
 class TerminalClient:
     def __init__(self, manager: RepositoryManager): 
@@ -26,7 +28,8 @@ class TerminalClient:
         self.scada_scheme_repository = manager.get_scada_scheme_repository()
         self.facility_types_repository = manager.get_facility_types_repository()
         self.workshop_repository = manager.get_workshop_repository()
-
+        self.manager = manager
+        
     def run(self) -> None:
         operation = None
 
@@ -43,25 +46,25 @@ class TerminalClient:
             operation = int(input('Операция :'))
 
             match operation:
-                case NumChoice.create_user:
+                case Command.CREATE_USER:
                     self.add_user()
 
-                case NumChoice.select_user:
+                case Command.SELECT_USER:
                     self.show_users()
 
-                case NumChoice.edit_user:
+                case Command.UPDATE_USER:
                     self.update_user()
 
-                case NumChoice.delete_user:
+                case Command.DELETE_USER:
                     self.delete_user()
 
-                case NumChoice.edit_by_excel:
+                case Command.EDIT_BY_EXEL:
                     self.edit_user_from_excel()
 
-                case NumChoice.create_by_excel:
+                case Command.CREATE_BY_EXCEL:
                     self.add_user_from_excel()
 
-                case NumChoice.exit_programm:
+                case Command.EXIT:
                     return
 
                 case _:
@@ -70,54 +73,46 @@ class TerminalClient:
 
 
     def add_user(self):
-        
         try:
             print('Для создания записи о сотруднике укажите все перечисленные данные:')
             surname = str(input('Фамилия: '))
             name = str(input('Имя: '))
             fathersname = str(input('Отчество: '))
             
-            new_facility = list_for_facilityes(self.facility_repository)
+            new_facility = self.select_facility()
             if not new_facility:
                 print('Установки под данным номером не обнаружено')
                 input('Нажмите Enter что бы продолжить ')
                 return
 
-            new_post = list_for_posts(self.posts_repository)
+            new_post = self.select_post()
             if not new_post:
                 print('Должности под данным номером не обнаружено')
                 input('Нажмите Enter что бы продолжить ')
                 return
 
             new_hire = int(input('\nЭто новый сотрудник, или старый, которого ещё нет в базе данных?\n1: Новый сотрудник\n2: Старый сотрудник\n'))
-            match new_hire:
+            
+            
+            if new_hire == Command.NEW_HIRE_USER:
+                hire_date = datetime.today()
+            else:
+                hire_date = datetime.strptime(str(input('Дата найма сотрудника (год-месяц-число): ')), '%y-%m-%d')
 
-                case NumChoice.new_hire_user:
-                    hire_date = datetime.today()
-
-                case NumChoice.old_hire_user:
-                    hire_date = datetime.strptime(str(input('Дата найма сотрудника (год-месяц-число): ')), '%y-%m-%d')
-
-            login = translit(name[:3] + surname[:3] + fathersname[:3],"ru", reversed="true")
+            login = translit(name[:3] + surname[:3] + fathersname[:3],"ru", reversed=True)
+        
         except KeyboardInterrupt:
             print('\nВыполнение программы прервано!')
             input('Нажмите Enter что бы продолжить')
             return
 
-        match new_post.name:
-            case StrChoice.gendir_post:
-                password_length = 12
-            case StrChoice.glavspec_post:
-                password_length = 12
-            case StrChoice.starspec_post:
-                password_length = 8
-            case StrChoice.spec1categ_post:
-                password_length = 8
-            case _:
-                print('Неизвестная должность')
-                return
+        
+        if new_post.name in UserPost.LEADERSHIP.value:
+            password_length = 12
+        else:
+            password_length = 8
 
-        password = password_generator(password_length)
+        password = PasswordGenerator.generate(password_length)
 
         new_user = self.user_repository.create(
             new_user = UserIn(surname, 
@@ -125,7 +120,7 @@ class TerminalClient:
                                       fathersname, 
                                       facility = new_facility, 
                                       post = new_post, 
-                                      hire_date = hire_date, 
+                                      hire_date = str(hire_date), 
                                       login = login, 
                                       password = password))
 
@@ -135,15 +130,11 @@ class TerminalClient:
 
 
     def show_users(self):
-        # TODO: Описать возможные варианты ответа на данный вопрос как класс, который наследуется от класса IntEnum 
-        # (почитай примеры использования).
-        # С использованием данного подхода опиши методы, которые будут инкапсулировать логику, описанную после if и elif. [X]
-        # Аналогично в других частях кода
         try:
             select_type = int(input('Вы хотите просмотреть одну запись с конкретным ID или сразу все?\n1: C конкретным ID\n2: Все записи\n'))
 
             match select_type:
-                case NumChoice.select_id:
+                case Command.SHOW_USER_BY_ID:
                     needed_id = input('Введите ID записи которую хотите просмотреть\n')
                     founded_user = self.user_repository.get_by_ID(needed_id)
                     
@@ -152,7 +143,7 @@ class TerminalClient:
                     else:
                         print('Записи с указанным ID не найдено')
                 
-                case NumChoice.select_all_users:
+                case Command.SHOW_ALL_USERS:
                     for founded_user in (self.user_repository.get_all()):
                         print(founded_user)
                 
@@ -166,10 +157,9 @@ class TerminalClient:
 
 
     def update_user(self):
-        
         try:
             print('Сотрудники: ')
-            edit_user = list_for_users(self.user_repository)
+            edit_user = self.select_user()
 
             if not edit_user:
                 print('Сотрудника под данным номером не обнаружено')
@@ -179,13 +169,13 @@ class TerminalClient:
             name = str(input('Новое имя: '))
             fathersname = str(input('Новое отчество: '))
                 
-            facility_in = list_for_facilityes(self.facility_repository)
+            facility_in = self.select_facility()
 
             if not facility_in:
                 print('Установки под указанным номером не обнаружено')
                 return
 
-            post_in = list_for_posts(self.posts_repository)
+            post_in = self.select_post()
 
             if not post_in:
                 print('Должности под указанным номером не обнаружено')
@@ -226,13 +216,12 @@ class TerminalClient:
                 print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.name}''')
                 users_id.append(iteration.user_id)
                 
-            deleted_user = input('Введите ID сотрудника, чью запись хотите удалить: ')
+            deleted_user = int(input('Введите ID сотрудника, чью запись хотите удалить: '))
 
             if deleted_user not in users_id:
                 acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
 
-                if acception == 'y':
-                                
+                if acception == Acceptance.YES: 
                     if self.user_repository.delete(deleted_user):
                         print('Удаление произшло успешно!')
                     else:
@@ -271,27 +260,39 @@ class TerminalClient:
             return
         
         sheet = workbook.active
+        if not sheet:
+            return
         
         name.set_next(surname).set_next(fathersname).set_next(now_post).set_next(new_post).set_next(now_facility).set_next(new_facility)
 
         row = sheet[1]
+        if not row:
+            return 
+        
         if not name.handle(row):
             return print('Файл не соответствует формату!\n')
 
         for row in sheet.iter_rows(min_row=2, values_only=True):
             try:
                 edited_user = self.user_repository.get_by_FIO(
-                    name=row[0],
-                    surname=row[1],
-                    fathersname=row[2],
-                    facility_name=row[5],
-                    post_name=row[3])
+                    name=str(row[0]),
+                    surname=str(row[1]),
+                    fathersname=str(row[2]),
+                    facility_name=str(row[5]),
+                    post_name=str(row[3]))
 
+                if not edited_user:
+                    return
+                
                 if row[4]:
-                    edited_user.post = self.posts_repository.get_by_name(name=row[4])
+                    fetched_post = self.posts_repository.get_by_name(name=str(row[4]))
+                    if fetched_post:
+                        edited_user.post = fetched_post
 
                 if row[6]:
-                    edited_user.facility = self.facility_repository.get_by_name(name=row[6])
+                    fetched_facility = self.facility_repository.get_by_name(name=str(row[6]))
+                    if fetched_facility:
+                        edited_user.facility = fetched_facility
 
                 print(self.user_repository.update(
                     edited_user.user_id,
@@ -309,29 +310,92 @@ class TerminalClient:
                 pass
 
     def add_user_from_excel(self):
+        reader = NewUsersExcelReader(self.manager)
+        
+        data = reader.read_from_excel()
 
-        data = read_from_excel(self.posts_repository, self.facility_repository)
-
-        if data == None:
+        if not data:
             return
 
-        create_raport(data)
+        reader.create_raport(data)
         
-        for iteration in data:
+        for user_data in data:
 
-            fetched_facility = self.facility_repository.get_by_name(iteration[3])
-            fetched_post = self.posts_repository.get_by_name(iteration[4])
+            fetched_facility = self.facility_repository.get_by_name(user_data[3])
+            fetched_post = self.posts_repository.get_by_name(user_data[4])
 
+            if not fetched_facility:
+                print(f"Установка '{fetched_facility}' не была найдена в базе данных")
+                return
+            
+            if not fetched_post:
+                print(f"Должность '{fetched_post}' не была найдена в базе данных")
+                return
+            
             new_user = self.user_repository.create(
                 new_user = UserIn(
-                    surname = iteration[1], 
-                    name = iteration[0], 
-                    fathersname = iteration[2], 
+                    surname = user_data[1], 
+                    name = user_data[0], 
+                    fathersname = user_data[2], 
                     facility = fetched_facility, 
                     post = fetched_post, 
-                    hire_date = iteration[5], 
-                    login = iteration[6], 
-                    password = iteration[7]))
+                    hire_date = user_data[5], 
+                    login = user_data[6], 
+                    password = user_data[7]))
 
             print(new_user)
+        
         input('Нажмите Enter что бы продолжить')
+
+
+    def select_user(self) -> Optional[UserOut]:
+        users = []
+        iteration_number = 0
+
+        for iteration in self.user_repository.get_all():
+            print('Номер сотрудника: ',iteration_number,'\n',iteration)
+            users.append(iteration.user_id)
+            iteration_number += 1
+
+        edit_user = int(input('\nВведите номер сотрудника, чью запись хотите изменить: '))
+
+        try:
+            return self.user_repository.get_by_ID(users[edit_user])
+        except IndexError:
+            return
+
+
+    def select_facility(self) -> Optional[FacilityOut]:
+        facilityes = []
+        iteration_number = 0 
+
+        print('\nУстановки:')
+        for iteration in self.facility_repository.get_all():
+            print(f'Установка №{iteration_number} , {iteration}')
+            facilityes.append(iteration.facility_id)
+            iteration_number += 1
+
+        facility_id = int(input('На какой установке (номер установки) будет работать сотрудник?: '))
+
+        try:
+            return self.facility_repository.get_by_ID(facilityes[facility_id])
+        except IndexError:
+            return
+        
+
+    def select_post(self) -> Optional[PostsOut]:
+        posts = []
+        iteration_number = 0
+
+        print('\nДолжности:')
+        for iteration in self.posts_repository.get_all():
+            print(f'Должность №{iteration_number}: Наименование: {iteration.name}')
+            posts.append(iteration.post_ID)
+            iteration_number += 1
+
+        post = int(input('Должность сотрудника (Номер должности): '))
+
+        try:
+            return self.posts_repository.get_by_ID(posts[post])
+        except IndexError:
+            return

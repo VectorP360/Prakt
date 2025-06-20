@@ -1,19 +1,22 @@
 from psycopg import connect
 
 from repository.repository import RepositoryManager
-from client import TerminalClient
+from clients.terminal_client import TerminalClient
 
-# Это твоя точка входа в программу (Почему-то не работает)
+# Это точка входа в программу
 if __name__ == "main":
-    manager = RepositoryManager(connection = connect(
+    
+    connection = connect(
         dbname = '',
         host = '',
         user = '',
         password = '',
         port = ''
         )
-    )
+    
+    manager = RepositoryManager(connection)
         
-        # Дописать класс TerminalClient таким образом, чтобы он принимал на вход только менеджер репозиториев
     client = TerminalClient(manager)
+    
     client.run()
+    
