@@ -40,7 +40,7 @@ class FacilityRepository:
                        FROM facility 
                         JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                         JOIN workshop USING (workshop_id)
-                       WHERE facility.name = %s
+                       WHERE facility_id = %s
                        ''', (facility_id,))
 
         fetched_row = cursor.fetchone()

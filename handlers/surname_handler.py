@@ -14,5 +14,5 @@ class SurnameHandler(Handler):
         if isinstance(cell, Cell) and cell.internal_value == self.COLUMN_NAME:
             return super().handle(row)
         else:
-            print(f'Неверное имя столбца "{self.COLUMN_NAME}" ({row})')
+            print(f'Неверное имя столбца "{self.COLUMN_NAME}" ({row[self.CHECKING_ROW]})')
             return False

@@ -20,7 +20,7 @@ from handlers.now_facility_handler import NowFacilityHandler
 from handlers.new_facility_handler import NewFacilityHandler
 
 
-class TerminalClient:
+class UserTerminalClient:
     def __init__(self, manager: RepositoryManager): 
         self.facility_repository = manager.get_facility_repository()
         self.posts_repository = manager.get_posts_repository()

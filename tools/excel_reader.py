@@ -20,6 +20,14 @@ from handlers import (
     PostHandler, 
     SurnameHandler
     )
+from handlers.type_handlers import (
+    TypeNameHandler,
+    TypeSurnameHandler,
+    TypeFathresnameHandler,
+    TypeHireDateHandler,
+    TypeFacilityHandler,
+    TypePostHandler
+)
 
 
 class NewUsersExcelReader:
@@ -44,6 +52,14 @@ class NewUsersExcelReader:
         
 
     def read_from_excel(self) -> List[Tuple]:
+
+        name_handler = TypeNameHandler()
+        surname_handler = TypeSurnameHandler()
+        fathersname_handler = TypeFathresnameHandler()
+        hiredate_handler = TypeHireDateHandler()
+        facility_handler = TypeFacilityHandler()
+        post_handler = TypePostHandler()
+
         data = []
         
         try:
@@ -63,8 +79,15 @@ class NewUsersExcelReader:
         if not sheet:
             return data
         
-        # Секция заполнения
-        for row in sheet.iter_rows(min_row=2, values_only=True):
+
+        min_row = 2
+        for row in sheet.iter_rows(min_row, values_only=True):
+
+            name_handler.set_next(surname_handler).set_next(fathersname_handler).set_next(hiredate_handler).set_next(facility_handler).set_next(post_handler)
+
+            if not name_handler.handle(sheet[min_row]):
+                return
+
             try:
                 name = str(row[0])
                 surname = str(row[1])
@@ -95,10 +118,10 @@ class NewUsersExcelReader:
                 password = PasswordGenerator.generate(password_length)
 
                 data.append((row[0],row[1],row[2],fetched_facility.name,fetched_post.name,hiring_date,login,password))
+                min_row += 1
             
             except IndexError:
                 print('В таблице недостаточно столбцов')
-        
         return data
     
 

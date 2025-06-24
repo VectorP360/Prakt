@@ -14,3 +14,9 @@ class Command(IntEnum):
 
     NEW_HIRE_USER = 1
     OLD_HIRE_USER = 2
+
+    CREATE_SCADA = 1
+    SELECT_SCADA = 2
+    UPDATE_SCADA = 3
+    DELETE_SCADA = 4
+    SHOW_SCADA_USER = 5
