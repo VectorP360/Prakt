@@ -15,10 +15,9 @@ class ScadaSchemeRepository:
 
         cursor.execute(
         '''
-        INSERT INTO scada_scheme (name, facility_id) VALUES (%s, %s)
-        ON CONFLICT (scada_scheme_id) DO NOTHING
-        RETURNING scada_scheme_id, name
-        ''', (scheme_in.name, scheme_in.facility.facility_id)
+        INSERT INTO scada_scheme (name, facility_id, content) VALUES (%s, %s, %s)
+        RETURNING scada_scheme_id, name, content
+        ''', (scheme_in.name, scheme_in.facility.facility_id, scheme_in.content)
         )
         self.__connection.commit()
 
@@ -26,7 +25,8 @@ class ScadaSchemeRepository:
         if fetched_row:
             return ScadaSchemeOut(scheme_id = fetched_row[0],
                                 name = fetched_row[1], 
-                                facility = scheme_in.facility)
+                                facility = scheme_in.facility,
+                                content = fetched_row[2])
         return None
         
 
@@ -35,7 +35,7 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name 
+                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
                             JOIN facility_types ON facility.type_id = facility_types.facility_type_id
@@ -59,7 +59,8 @@ class ScadaSchemeRepository:
                         workshop_id = fetched_row[6],
                         name = fetched_row[7]
                     )
-                )
+                ),
+                content = fetched_row[8]
             )
         else:
             return None
@@ -70,7 +71,7 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name 
+                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
                             JOIN facility_types ON facility.type_id = facility_types.facility_type_id
@@ -93,7 +94,8 @@ class ScadaSchemeRepository:
                         workshop_id = record[6],
                         name = record[7]
                     )
-                )
+                ),
+                content = record[8]
             )
             result.append(new_obj)  
         return result

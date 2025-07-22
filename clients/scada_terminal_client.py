@@ -6,6 +6,7 @@ from enums import Command
 
 from schemas.posts import PostsIn, PostsOut
 from schemas.facility import FacilityIn, FacilityOut
+from schemas.scada_scheme import ScadaSchemeIn, ScadaSchemeOut
 
 class ScadaTerminalClient:
     def __init__(self, manager: RepositoryManager):
@@ -63,7 +64,16 @@ class ScadaTerminalClient:
             print('Установки под данным номером не обнаружено')
             input('Нажмите Enter что бы продолжить ')
             return
-        text = 
+        svg_path = input('Введите расположение файла SCADA схемы: ')
+
+        with open(svg_path, 'r', encoding='utf-8') as file:
+            svg_code = file.read()
+
+        new_scada = self.scada_scheme_repository.create(
+            scheme_in = ScadaSchemeIn(name = scheme_name, 
+                                      facility = new_facility, 
+                                      content = svg_code))
+        print(new_scada)
 
 
     def show_scadas(self):...
@@ -89,7 +99,7 @@ class ScadaTerminalClient:
             facilityes.append(iteration.facility_id)
             iteration_number += 1
 
-        facility_id = int(input('На какой установке (номер установки) будет работать сотрудник?: '))
+        facility_id = int(input('Какую установку будет представлять схема?: '))
 
         try:
             return self.facility_repository.get_by_ID(facilityes[facility_id])
