@@ -1,10 +1,11 @@
 from psycopg import connect
 
 from repository.repository import RepositoryManager
-from clients.terminal_client import TerminalClient
+from clients.user_terminal_client import UserTerminalClient
+from clients.scada_terminal_client import ScadaTerminalClient
 
 # Это точка входа в программу
-if __name__ == "main":
+if __name__ == "__main__":
     
     connection = connect(
         dbname = '',

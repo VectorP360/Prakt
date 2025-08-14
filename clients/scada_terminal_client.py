@@ -1,4 +1,6 @@
 from typing import Optional
+from time import sleep
+import webbrowser
 import os
 
 from repository.repository import RepositoryManager
@@ -73,6 +75,17 @@ class ScadaTerminalClient:
             scheme_in = ScadaSchemeIn(name = scheme_name, 
                                       facility = new_facility, 
                                       content = svg_code))
+        
+        my_file = open("TempFile", "w")
+        my_file.write(svg_code)
+        my_file.close()
+        os.rename('TempFile', 'TempFile.svg')
+        filepath = os.path.abspath('TempFile.svg')
+        sleep(3)
+        webbrowser.open(f'File://{filepath}')
+        sleep(3)
+        os.unlink('TempFile.svg')
+
         print(new_scada)
 
 

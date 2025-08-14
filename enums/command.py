@@ -9,8 +9,8 @@ class Command(IntEnum):
     CREATE_BY_EXCEL = 6
     EXIT = 0
 
-    SHOW_USER_BY_ID = 1
-    SHOW_ALL_USERS = 2
+    SHOW_BY_ID = 1
+    SHOW_ALL = 2
 
     NEW_HIRE_USER = 1
     OLD_HIRE_USER = 2

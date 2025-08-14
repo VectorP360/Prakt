@@ -134,7 +134,7 @@ class UserTerminalClient:
             select_type = int(input('Вы хотите просмотреть одну запись с конкретным ID или сразу все?\n1: C конкретным ID\n2: Все записи\n'))
 
             match select_type:
-                case Command.SHOW_USER_BY_ID:
+                case Command.SHOW_BY_ID:
                     needed_id = input('Введите ID записи которую хотите просмотреть\n')
                     founded_user = self.user_repository.get_by_ID(needed_id)
                     
@@ -143,7 +143,7 @@ class UserTerminalClient:
                     else:
                         print('Записи с указанным ID не найдено')
                 
-                case Command.SHOW_ALL_USERS:
+                case Command.SHOW_ALL:
                     for founded_user in (self.user_repository.get_all()):
                         print(founded_user)
                 
