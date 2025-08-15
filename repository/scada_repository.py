@@ -35,10 +35,10 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
+                        facility_type.facility_type_id, facility_type.type_name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
-                            JOIN facility_types ON facility.type_id = facility_types.facility_type_id
+                            JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
                         WHERE scada_scheme_id = %s''', (scada_scheme_id,))
 
@@ -71,10 +71,10 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
+                        facility_type.facility_type_id, facility_type.type_name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
-                            JOIN facility_types ON facility.type_id = facility_types.facility_type_id
+                            JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
                        ORDER BY scada_scheme_id;''')
         
@@ -107,7 +107,7 @@ class ScadaSchemeRepository:
         cursor.execute(
         '''
         UPDATE scada_scheme SET name = %s, facility_id = %s WHERE scada_scheme_id = %s
-        RETURNING scada_scheme_id, name;''', (scada_in.name, scada_in.facility , scada_scheme_id)
+        RETURNING scada_scheme_id, name, content;''', (scada_in.name, scada_in.facility.facility_id, scada_scheme_id)
         )
 
         self.__connection.commit()
@@ -117,7 +117,8 @@ class ScadaSchemeRepository:
         if fetched_row:
             return ScadaSchemeOut(scheme_id = fetched_row[0], 
                                   name = fetched_row[1], 
-                                  facility = scada_in.facility)
+                                  facility = scada_in.facility,
+                                  content = fetched_row[2])
         else:
             return None
 
