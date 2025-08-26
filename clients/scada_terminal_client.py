@@ -6,20 +6,17 @@ import os
 from repository.repository import RepositoryManager
 from enums import Command
 
-from schemas.posts import PostsIn, PostsOut
-from schemas.facility import FacilityIn, FacilityOut
+from schemas.facility import FacilityOut
 from schemas.scada_scheme import ScadaSchemeIn, ScadaSchemeOut
-from enums.acceptance import Acceptance
+
+from enums import Acceptance
+
 
 class ScadaTerminalClient:
     def __init__(self, manager: RepositoryManager):
         self.facility_repository = manager.get_facility_repository()
-        self.posts_repository = manager.get_posts_repository()
         self.user_repository = manager.get_user_repository()
         self.scada_scheme_repository = manager.get_scada_scheme_repository()
-        self.facility_types_repository = manager.get_facility_types_repository()
-        self.workshop_repository = manager.get_workshop_repository()
-        self.manager = manager
 
     def run(self) -> None:
         operation = None
@@ -29,8 +26,8 @@ class ScadaTerminalClient:
                 '1: Создание новой записи\n',
                 '2: Просмотр записи по ID / всех записей\n',
                 '3: Редактирование записи\n',
-                '4: удаление записи\n',
-                '5: просмотреть работника за конкретной установккой\n\n',
+                '4: Удаление записи\n',
+                '5: Просмотреть работника за конкретной установккой\n\n',
                 'Для выхода из программы введите 0\n')
 
             operation = int(input('Операция :'))
@@ -62,7 +59,7 @@ class ScadaTerminalClient:
         print('Для создания записи о SCADA схеме укажите все требуемые данные\n')
         scheme_name = input('Название схемы: ')
         
-        new_facility = self.select_facility()
+        new_facility = self.__select_facility()
         if not new_facility:
             print('Установки под данным номером не обнаружено')
             input('Нажмите Enter что бы продолжить ')
@@ -77,7 +74,7 @@ class ScadaTerminalClient:
                                       facility = new_facility, 
                                       content = svg_code))
         
-        self.open_in_browser(svg_code)
+        self.__open_in_browser(svg_code)
 
         print(new_scada)
 
@@ -93,7 +90,7 @@ class ScadaTerminalClient:
                     
                     if founded_scheme:
                         print(founded_scheme)
-                        self.open_in_browser(founded_scheme.content)
+                        self.__open_in_browser(founded_scheme.content)
                     else:
                         print('Записи с указанным ID не найдено')
                 
@@ -106,14 +103,39 @@ class ScadaTerminalClient:
             input('Нажмите Enter что бы продолжить ')
         except KeyboardInterrupt:
             print('Просмотр записи прерван!')
-            input('Нажмите Enter что бы продолжить')
+            
+            # README: А вот эта строка часто повторяется
+            input('Нажмите Enter что бы продолжить') 
+            
+            # Подозрительно часто
+            # ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⣠⣤⣤⣤⣤⣤⣶⣦⣤⣄⡀⠄⠄⠄⠄⠄⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⠄⢀⣴⣿⡿⠛⠉⠙⠛⠛⠛⠛⠻⢿⣿⣷⣤⡀⠄⠄⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⠄⣼⣿⠋⠄⠄⠄⠄⠄⠄⠄⢀⣀⣀⠈⢻⣿⣿⡄⠄⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⣸⣿⡏⠄⠄⠄⣠⣶⣾⣿⣿⣿⠿⠿⠿⢿⣿⣿⣿⣄⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⣿⣿⠁⠄⠄⢰⣿⣿⣯⠁⠄⠄⠄⠄⠄⠄⠄⠈⠙⢿⣷⡄⠄
+            # ⠄⠄⣀⣤⣴⣶⣶⣿⡟⠄⠄⠄⢸⣿⣿⣿⣆⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⣿⣷⠄
+            # ⠄⢰⣿⡟⠋⠉⣹⣿⡇⠄⠄⠄⠘⣿⣿⣿⣿⣷⣦⣤⣤⣤⣶⣶⣶⣶⣿⣿⣿⠄
+            # ⠄⢸⣿⡇⠄⠄⣿⣿⡇⠄⠄⠄⠄⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠄
+            # ⠄⣸⣿⡇⠄⠄⣿⣿⡇⠄⠄⠄⠄⠄⠉⠻⠿⣿⣿⣿⣿⡿⠿⠿⠛⢻⣿⡇⠄⠄
+            # ⠄⣿⣿⠁⠄⠄⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢸⣿⣧⠄⠄
+            # ⠄⣿⣿⠄⠄⠄⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢸⣿⣿⠄⠄
+            # ⠄⣿⣿⠄⠄⠄⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢸⣿⣿⠄⠄
+            # ⠄⢿⣿⡆⠄⠄⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢸⣿⡇⠄⠄
+            # ⠄⠸⣿⣧⡀⠄⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⣿⣿⠃⠄⠄
+            # ⠄⠄⠛⢿⣿⣿⣿⣿⣇⠄⠄⠄⠄⠄⣰⣿⣿⣷⣶⣶⣶⣶⠶⠄⢠⣿⣿⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⣿⣿⠄⠄⠄⠄⠄⣿⣿⡇⠄⣽⣿⡏⠁⠄⠄⢸⣿⡇⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⣿⣿⠄⠄⠄⠄⠄⣿⣿⡇⠄⢹⣿⡆⠄⠄⠄⣸⣿⠇⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⢿⣿⣦⣄⣀⣠⣴⣿⣿⠁⠄⠈⠻⣿⣿⣿⣿⡿⠏⠄⠄⠄⠄
+            # ⠄⠄⠄⠄⠄⠄⠄⠈⠛⠻⠿⠿⠿⠿⠋⠁⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄
+            # Копипастишь? 
+            # А как насчет https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
             return
 
 
     def update_scada(self):
         try:
             print('Scada схемы: ')
-            edit_schema = self.select_schema()
+            edit_schema = self.__select_schema()
 
             if not edit_schema:
                 print('Схемы под данным номером не обнаружено')
@@ -121,7 +143,7 @@ class ScadaTerminalClient:
                 
             name = str(input('Новое название схемы: '))
                 
-            facility_in = self.select_facility()
+            facility_in = self.__select_facility()
 
             if not facility_in:
                 print('Установки под указанным номером не обнаружено')
@@ -136,7 +158,7 @@ class ScadaTerminalClient:
                 )
                 )
 
-            self.open_in_browser(upd_scheme.content)
+            self.__open_in_browser(upd_scheme.content)
             print(upd_scheme)
                     
             input('Нажмите Enter что бы продолжить')
@@ -179,7 +201,7 @@ class ScadaTerminalClient:
 
 
     def show_scada_user(self):
-        selected_schema = self.select_schema()
+        selected_schema = self.__select_schema()
         if not selected_schema:
             print('Схемы под указанным номером не обнаружено!')
             input('Нажмите Enter что бы продолжить')
@@ -189,8 +211,8 @@ class ScadaTerminalClient:
 
 
     # Вспомогательные функции:
-
-    def select_schema(self) -> Optional[ScadaSchemeOut]:
+    # README: Функции такого рода можно сделать приватными (два подчеркивания в начале названия)
+    def __select_schema(self) -> Optional[ScadaSchemeOut]:
         schemas = []
         iteration_number = 0
 
@@ -206,25 +228,22 @@ class ScadaTerminalClient:
         except IndexError:
             return
 
-    def select_facility(self) -> Optional[FacilityOut]:
-        facilityes = []
-        iteration_number = 0 
-
+    def __select_facility(self) -> Optional[FacilityOut]:
         print('\nУстановки:')
-        for iteration in self.facility_repository.get_all():
-            print(f'Установка №{iteration_number} , {iteration}')
-            facilityes.append(iteration.facility_id)
-            iteration_number += 1
+        
+        for facility in self.facility_repository.get_all():
+            print(f'{facility.name}: {facility.facility_id}')
 
         facility_id = int(input('Какую установку будет представлять схема?: '))
 
         try:
-            return self.facility_repository.get_by_ID(facilityes[facility_id])
+            return self.facility_repository.get_by_ID(facility_id)
         except IndexError:
             return
 
-    def open_in_browser(self, svg_code):
-
+    def __open_in_browser(self, svg_code):
+        # А почему файл создает сначала без формата, потом в формате SVG? 
+        # Можно ли сразу в формате SVG?
         my_file = open("TempFile", "w")
         my_file.write(svg_code)
         my_file.close()
@@ -232,6 +251,7 @@ class ScadaTerminalClient:
         os.rename('TempFile', 'TempFile.svg')
         filepath = os.path.abspath('TempFile.svg')
 
+        # А зачем тут sleep?
         sleep(3)
         webbrowser.open(f'File://{filepath}')
         sleep(3)
