@@ -1,11 +1,14 @@
 from psycopg import Connection
 
-from repository.workshop_repository import WorkshopRepository
-from repository.user_repository import UserRepository
-from repository.scada_repository import ScadaSchemeRepository
-from repository.posts_repository import PostsRepository
-from repository.facility_types_repository import FacilityTypesRepository
-from repository.facility_repository import FacilityRepository
+from . import (
+    WorkshopRepository, 
+    UserRepository, 
+    ScadaSchemeRepository, 
+    PostsRepository, 
+    FacilityTypesRepository, 
+    FacilityRepository
+    )
+
 
 class RepositoryManager:
     def __init__(self, connection: Connection):
