@@ -2,11 +2,10 @@ from datetime import datetime
 import os
 from typing import Optional, List, Tuple
 
-import openpyxl
 from openpyxl import load_workbook, Workbook
 from openpyxl.utils.exceptions import InvalidFileException
-import openpyxl.worksheet
-import openpyxl.worksheet.worksheet
+from openpyxl.worksheet.worksheet import Worksheet
+
 from transliterate import translit
 
 from enums import UserPost
@@ -35,7 +34,7 @@ class NewUsersExcelReader:
         self.repository_manager = repository_manager
 
 
-    def __check_file(self, workbook: Workbook) -> Optional[openpyxl.worksheet.worksheet.Worksheet]:
+    def __check_file(self, workbook: Workbook) -> Optional[Worksheet]:
         name_handler = NameHandler()
         surname_handler = SurnameHandler()
         fathersname_handler = FathresnameHandler()
@@ -125,7 +124,7 @@ class NewUsersExcelReader:
         return data
     
 
-    def create_raport(self, users_data: List[Tuple]):
+    def create_raport(self, users_data: List[Tuple]) -> None:
         if not os.path.exists('./temp/raports'):
             os.mkdir('./temp/raports')
 
