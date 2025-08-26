@@ -173,6 +173,53 @@ class UserRepository:
             )
             result.append(new_user)  
         return result
+    
+    def get_by_scada(self, scada_scheme_id: str):
+        cursor = self.__connection.cursor()
+
+        cursor.execute("""
+                        SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+                        workshop.workshop_id, workshop.name, posts.post_id, posts.name, hire_date, login, password, scada_scheme_id, scada_scheme.name, scada_scheme.content
+                        FROM users
+                        JOIN facility ON users.facility_id = facility.facility_id
+                            JOIN scada_scheme on facility.facility_id = scada_scheme.facility_id
+                            JOIN facility_type ON facility.type_id = facility_type.facility_type_id
+                            JOIN workshop ON facility.workshop_id = workshop.workshop_id
+                        JOIN posts USING (post_id)
+                        WHERE scada_scheme.scada_scheme_id = %s
+                       """,
+                       (scada_scheme_id,))
+        
+        fetched_row = cursor.fetchone()
+        
+        if fetched_row:
+            return UserOut(
+                user_id = fetched_row[0],
+                surname = fetched_row[1],
+                name = fetched_row[2],
+                fathersname = fetched_row[3],
+                facility = FacilityOut(
+                    facility_id = fetched_row[4],
+                    name = fetched_row[5],
+                    type = FacilityTypeOut(
+                        facility_type_id = fetched_row[6],
+                        name = fetched_row[7]
+                    ),
+                    workshop = WorkshopOut(
+                        workshop_id = fetched_row[8],
+                        name = fetched_row[9]
+                    )
+                ),
+                post = PostsOut(
+                    post_ID = fetched_row[10],
+                    name = fetched_row[11]
+                ),
+                hire_date = fetched_row[12],
+                login = fetched_row[13],
+                password = fetched_row[14]
+            )
+        else:
+            return None
 
 
     def update(self, user_id, new_user: UserIn) -> Optional[UserOut]:

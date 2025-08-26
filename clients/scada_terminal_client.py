@@ -9,6 +9,7 @@ from enums import Command
 from schemas.posts import PostsIn, PostsOut
 from schemas.facility import FacilityIn, FacilityOut
 from schemas.scada_scheme import ScadaSchemeIn, ScadaSchemeOut
+from enums.acceptance import Acceptance
 
 class ScadaTerminalClient:
     def __init__(self, manager: RepositoryManager):
@@ -146,10 +147,46 @@ class ScadaTerminalClient:
             return
 
 
-    def delete_scada(self):...
+    def delete_scada(self):
+
+        try:
+            schemas_id = []
+            print('\nСхемы:')
+            
+            for iteration in self.scada_scheme_repository.get_all():
+                print(iteration)
+                schemas_id.append(iteration.scheme_id)
+                
+            deleted_schema = int(input('Введите ID scada схемы, чью запись хотите удалить: '))
+
+            if deleted_schema in schemas_id:
+                acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
+
+                if acception == Acceptance.YES: 
+                    if self.scada_scheme_repository.delete(deleted_schema):
+                        print('Удаление произшло успешно!')
+                    else:
+                        print('Удаление не состоялось!')
+                
+                else:
+                    print('Удаление отменено')
+                    
+                input('Нажмите Enter что бы продолжить')
+        except KeyboardInterrupt:
+            print('Удаление записи прервано!')
+            input('Нажмите Enter что бы продолжить')
+            return
 
 
-    def show_scada_user(self):...
+    def show_scada_user(self):
+        selected_schema = self.select_schema()
+        if not selected_schema:
+            print('Схемы под указанным номером не обнаружено!')
+            input('Нажмите Enter что бы продолжить')
+            return
+        print(f'Пользователь, который на данный момент работает с этой scada схемой: {self.user_repository.get_by_scada(selected_schema.scheme_id)}')
+        input('Нажмите Enter что бы продолжить')
+
 
     # Вспомогательные функции:
 
@@ -162,10 +199,10 @@ class ScadaTerminalClient:
             schemas.append(iteration.scheme_id)
             iteration_number += 1
 
-        edit_schema = int(input('\nВведите номер схемы, чью запись хотите изменить: '))
+        selected_schema = int(input('\nВведите номер схемы, чью запись хотите изменить: '))
 
         try:
-            return self.scada_scheme_repository.get_by_ID(schemas[edit_schema])
+            return self.scada_scheme_repository.get_by_ID(schemas[selected_schema])
         except IndexError:
             return
 
