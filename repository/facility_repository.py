@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from psycopg import Connection
+from psycopg.rows import kwargs_row # Это самый удобный генератор строк на мой взгляд
 
 from schemas.facility import FacilityOut, FacilityIn, FacilityTypeOut, WorkshopOut
 
@@ -10,7 +11,53 @@ class FacilityRepository:
         self.__connection = connection
 
     def create(self, new_facility: FacilityIn)-> Optional[FacilityOut]:
-        cursor = self.__connection.cursor()
+        # README: Пару недель назад я обнаружил в Psycopg фичу, которая облегчает возврат строк из БД
+        
+        # Почитать можно вот тут
+        # https://www.psycopg.org/psycopg3/docs/api/rows.html
+
+        # Показываю, что нужно делать:
+        
+        # === ПОКАЗЫВАЮ ===
+        # 1) Ты определяешь функцию, которая принимает на вход строку прямо из БД. 
+        # def object_from_row(**row) -> Object:
+        #   return Object(field1=row['field1'], field2=row['field2'])  
+
+        # **row - это краткое описаение json-like словаря, где ключи - строки, а значения могут быть любого типа
+        
+        # 2) При создании курсора (объекта для работы с БД) 
+        # в качестве параметра row_factory передаешь свою функцию, 
+        # но обернутую в kwargs_row (я оставил импорт выше)
+        
+        # cursor = self.__connection.cursor(row_factory=kwargs_row(object_from_row))
+        # === ПЕРЕСТАЛ ПОКАЗЫВАТЬ ===
+        
+        # В Python функции тоже являются объектами, как переменные типа int, str, float. 
+        # Функции - это объекты типа Callable.
+        # То есть, при создании курсора в строке выше ты вызываешь метод объекта подключения (Connection), 
+        # передевая в качестве аргумента row_factory объект kwargs_row (которая является объектом типа Callable), 
+        # в который в СВОЮ очередь передаешь объект object_from_row (тоже объект типа Callable)
+
+        # Если ничего не понял, то это нормально
+        # ⣿⣿⣿⣿⣿⢿⠿⠿⠿⠛⠛⠛⠛⠻⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿
+        # ⣿⣿⠟⠋⣁⠄⠄⣀⣤⣤⣤⣀⣉⣁⡀⠒⠄⠉⠛⣿⣿⣿⣿⣿
+        # ⡏⢡⣴⠟⠁⠐⠉⠄⣤⣄⠉⣿⠟⢃⡄⠄⠄⢠⡀⠈⠻⣿⣿⣿
+        # ⠄⢸⣤⣤⣀⠑⠒⠚⠛⣁⣤⣿⣦⣄⡉⠛⠛⠛⠉⣠⣄⠙⣿⣿
+        # ⠄⣾⣿⣿⡟⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⠚⣿
+        # ⠄⢻⣿⣿⣷⣄⣉⠙⠛⠛⠛⠛⠛⠛⠋⣉⣉⣀⣤⠤⠄⣸⡀⢻
+        # ⣇⡈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⢠⣶⣿⣇⠘
+        # ⣿⣧⡈⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⢸⣿⣿⡿⠄
+        # ⣿⣿⣷⡀⠹⣿⣿⣿⣿⣿⣿⡋⠙⢻⣿⣿⣿⠟⢀⣾⣿⣿⠃⣸
+        # ⣿⣿⣿⣿⣦⠈⠻⣿⣿⣿⣿⣿⣷⣤⣀⣀⣠⣤⣿⣿⠟⢁⣼⣿
+        # ⣿⣿⣿⣿⣿⣿⣶⣤⣈⠙⠛⠛⠿⠿⠿⠿⠿⠛⠛⣡⣴⣿⣿⣿
+        # ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣷⣶⣶⣶⣶⣶⣾⣿⣿⣿⣿⣿⣿
+        # Погугли
+             
+        cursor = self.__connection.cursor(row_factory=kwargs_row())
+
+        def from_row(**row):
+            pass
+
 
         cursor.execute(
         '''
