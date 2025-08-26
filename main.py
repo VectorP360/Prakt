@@ -17,7 +17,7 @@ if __name__ == "__main__":
     
     manager = RepositoryManager(connection)
         
-    client = TerminalClient(manager)
+    client = ScadaTerminalClient(manager)
     
     client.run()
     
