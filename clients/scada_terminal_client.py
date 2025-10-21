@@ -130,6 +130,10 @@ class ScadaTerminalClient:
             # Копипастишь? 
             # А как насчет https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
             return
+        
+    def get_scada_by_user(self, user_id) -> ScadaSchemeOut:
+        scheme = self.scada_scheme_repository.get_by_user(user_id = user_id)
+        self.__open_in_browser(scheme.content)
 
 
     def update_scada(self):
@@ -242,8 +246,7 @@ class ScadaTerminalClient:
             return
 
     def __open_in_browser(self, svg_code):
-        # А почему файл создает сначала без формата, потом в формате SVG? 
-        # Можно ли сразу в формате SVG?
+
         my_file = open("TempFile", "w")
         my_file.write(svg_code)
         my_file.close()
@@ -251,8 +254,9 @@ class ScadaTerminalClient:
         os.rename('TempFile', 'TempFile.svg')
         filepath = os.path.abspath('TempFile.svg')
 
-        # А зачем тут sleep?
-        sleep(3)
+        #sleep тут нужен что бы компьютер успел загрузить схему через браузер, иначе временный файл будет удалён до его открытия
+
+        sleep(1)
         webbrowser.open(f'File://{filepath}')
-        sleep(3)
+        sleep(2)
         os.unlink('TempFile.svg')

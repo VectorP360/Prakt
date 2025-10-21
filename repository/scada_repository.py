@@ -64,6 +64,42 @@ class ScadaSchemeRepository:
             )
         else:
             return None
+        
+    def get_by_user(self, user_id: str) -> Optional[ScadaSchemeOut]:
+        cursor = self.__connection.cursor()
+
+        cursor.execute('''
+                        SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
+                        facility_type.facility_type_id, facility_type.type_name, workshop.workshop_id, workshop.name, scada_scheme.content
+                        FROM scada_scheme 
+                        JOIN facility USING (facility_id)
+                            JOIN facility_type ON facility.type_id = facility_type.facility_type_id
+                            JOIN workshop ON facility.workshop_id = workshop.workshop_id
+                            JOIN users ON facility.facility_id = users.facility_id
+                        WHERE users.user_id = %s''', (user_id,))
+
+        fetched_row = cursor.fetchone()
+        
+        if fetched_row:
+            return ScadaSchemeOut(
+                scheme_id = fetched_row[0], 
+                name = fetched_row[1],
+                facility = FacilityOut(
+                    facility_id = fetched_row[2],
+                    name = fetched_row[3],
+                    type = FacilityTypeOut(
+                        facility_type_id = fetched_row[4],
+                        name = fetched_row[5]
+                    ),
+                    workshop = WorkshopOut(
+                        workshop_id = fetched_row[6],
+                        name = fetched_row[7]
+                    )
+                ),
+                content = fetched_row[8]
+            )
+        else:
+            return None
     
     
     def get_all(self) -> List[ScadaSchemeOut]:

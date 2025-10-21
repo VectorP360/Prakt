@@ -7,20 +7,16 @@ from .workshop import WorkshopOut, WorkshopIn
 
 
 __all__ = [
-    # README: Тут чего-то не хватает
-
-    # ⠰⡿⠿⠛⠛⠻⠿⣷
-    # ⠀⠀⠀⠀⠀⠀⣀⣄⡀⠀⠀⠀⠀⢀⣀⣀⣤⣄⣀⡀
-    # ⠀⠀⠀⠀⠀⢸⣿⣿⣷⠀⠀⠀⠀⠛⠛⣿⣿⣿⡛⠿⠷
-    # ⠀⠀⠀⠀⠀⠘⠿⠿⠋⠀⠀⠀⠀⠀⠀⣿⣿⣿⠇
-    # ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠁
-
-    # ⠀⠀⠀⠀⣿⣷⣄⠀⢶⣶⣷⣶⣶⣤⣀
-    # ⠀⠀⠀⠀⣿⣿⣿⠀⠀⠀⠀⠀⠈⠙⠻⠗
-    # ⠀⠀⠀⣰⣿⣿⣿⠀⠀⠀⠀⢀⣀⣠⣤⣴⣶⡄
-    # ⠀⣠⣾⣿⣿⣿⣥⣶⣶⣿⣿⣿⣿⣿⠿⠿⠛⠃
-    # ⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄
-    # ⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡁
-    # ⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁
-    # ⠀⠀⠛⢿⣿⣿⣿⣿⣿⣿⡿⠟
+    FacilityTypeOut,
+    FacilityTypeIn,
+    FacilityOut,
+    FacilityIn,
+    PostsOut,
+    PostsIn,
+    ScadaSchemeOut,
+    ScadaSchemeIn,
+    UserOut,
+    UserIn,
+    WorkshopOut,
+    WorkshopIn
 ]

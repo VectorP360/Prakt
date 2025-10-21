@@ -9,7 +9,6 @@ from . import (
     FacilityRepository
     )
 
-
 class RepositoryManager:
     def __init__(self, connection: Connection):
         self._connection = connection
