@@ -1,15 +1,14 @@
 from typing import Optional
-from time import sleep
-import webbrowser
-import os
 
 from repository.repository import RepositoryManager
 from enums import Command
+from enums import Acceptance
 
 from schemas.facility import FacilityOut
 from schemas.scada_scheme import ScadaSchemeIn, ScadaSchemeOut
 
-from enums import Acceptance
+from tools.scada_opener import ScadaOpener
+
 
 
 class ScadaTerminalClient:
@@ -74,7 +73,8 @@ class ScadaTerminalClient:
                                       facility = new_facility, 
                                       content = svg_code))
         
-        self.__open_in_browser(svg_code)
+        scada_opener = ScadaOpener()
+        scada_opener.open_in_browser(svg_code = svg_code)
 
         print(new_scada)
 
@@ -90,7 +90,8 @@ class ScadaTerminalClient:
                     
                     if founded_scheme:
                         print(founded_scheme)
-                        self.__open_in_browser(founded_scheme.content)
+                        scada_opener = ScadaOpener()
+                        scada_opener.open_in_browser(svg_code = founded_scheme.content)
                     else:
                         print('Записи с указанным ID не найдено')
                 
@@ -133,7 +134,8 @@ class ScadaTerminalClient:
         
     def get_scada_by_user(self, user_id) -> ScadaSchemeOut:
         scheme = self.scada_scheme_repository.get_by_user(user_id = user_id)
-        self.__open_in_browser(scheme.content)
+        scada_opener = ScadaOpener()
+        scada_opener.open_in_browser(svg_code = scheme.content)
 
 
     def update_scada(self):
@@ -162,7 +164,8 @@ class ScadaTerminalClient:
                 )
                 )
 
-            self.__open_in_browser(upd_scheme.content)
+            scada_opener = ScadaOpener()
+            scada_opener.open_in_browser(svg_code = upd_scheme.content)
             print(upd_scheme)
                     
             input('Нажмите Enter что бы продолжить')
@@ -244,19 +247,3 @@ class ScadaTerminalClient:
             return self.facility_repository.get_by_ID(facility_id)
         except IndexError:
             return
-
-    def __open_in_browser(self, svg_code):
-
-        my_file = open("TempFile", "w")
-        my_file.write(svg_code)
-        my_file.close()
-
-        os.rename('TempFile', 'TempFile.svg')
-        filepath = os.path.abspath('TempFile.svg')
-
-        #sleep тут нужен что бы компьютер успел загрузить схему через браузер, иначе временный файл будет удалён до его открытия
-
-        sleep(1)
-        webbrowser.open(f'File://{filepath}')
-        sleep(2)
-        os.unlink('TempFile.svg')
