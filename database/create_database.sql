@@ -78,6 +78,23 @@ CREATE TABLE users(
     facility_id INTEGER,
     post_id INTEGER,
 
-    FOREIGN KEY (facility_id) REFERENCES facility (facility_ID),
+    FOREIGN KEY (facility_id) REFERENCES facility (facility_id),
     FOREIGN KEY (post_id) REFERENCES posts (post_id)
+);
+
+CREATE TABLE element_types(
+    element_type_id SERIAL PRIMARY KEY,
+    name VARCHAR(128)
+);
+
+CREATE TABLE element(
+    element_id SERIAL PRIMARY KEY,
+    name VARCHAR(128),
+    material VARCHAR(128),
+
+    element_type INTEGER,
+    facility_id INTEGER,
+
+    FOREIGN KEY (element_type) REFERENCES element_types (element_type_id),
+    FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
 );

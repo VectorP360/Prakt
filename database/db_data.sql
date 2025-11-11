@@ -25,3 +25,13 @@ INSERT INTO users (surname, name, fathersname, facility_id, post_ID, hire_date, 
 INSERT INTO users (surname, name, fathersname, facility_id, post_ID, hire_date, login, password) VALUES ('Шпаков','Сергей','Викторович', 3, 3, '2023-04-15','Shpak','VotTak');
 INSERT INTO users (surname, name, fathersname, facility_id, post_ID, hire_date, login, password) VALUES ('Круглов','Владимир','Иванович', 2, 2, '2023-04-13','Krug00','Shansonye');
 INSERT INTO users (surname, name, fathersname, facility_id, post_ID, hire_date, login, password) VALUES ('Жуков','Дмитрий','Владимирович', 4, 4, '2023-05-05','ZhuDmi568','SDGgr32');
+
+INSERT INTO element_types (element_type_id ,name) VALUES (1, 'Микроконтроллер');
+INSERT INTO element_types (element_type_id ,name) VALUES (2, 'Шаговый двигатель');
+INSERT INTO element_types (element_type_id ,name) VALUES (3, 'Датчик');
+INSERT INTO element_types (element_type_id ,name) VALUES (4, 'Панель');
+
+INSERT INTO element (name, material, element_type, facility_id) VALUES ('stm32', 'Кремний', 1, 1);
+INSERT INTO element (name, material, element_type, facility_id) VALUES ('NEMA 17', 'Железо', 2, 2);
+INSERT INTO element (name, material, element_type, facility_id) VALUES ('Термостат', 'Алюминий', 3, 3);
+INSERT INTO element (name, material, element_type, facility_id) VALUES ('Панель управления', 'Пластик', 4, 4);
