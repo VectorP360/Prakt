@@ -3,6 +3,7 @@ from repository.repository import RepositoryManager
 from clients.user_terminal_client import UserTerminalClient
 from clients.scada_terminal_client import ScadaTerminalClient
 from clients.leader_choice_client import LeaderClient
+from  clients.worker_client import WorkerClient
 
 from enums.posts import UserPost
 
@@ -19,8 +20,8 @@ class Executer():
             match user.post.name:
 
                 case UserPost.FIRST_CATEGORY.value:
-                    client = ScadaTerminalClient(manager = self.manager)
-                    client.get_scada_by_user(user_id = user.user_id)
+                    client = WorkerClient(manager = self.manager, user = user)
+                    client.run()
             
                 case UserPost.SENIOR.value:
                     client = UserTerminalClient(manager = self.manager)

@@ -20,3 +20,7 @@ class Command(IntEnum):
     UPDATE_SCADA = 3
     DELETE_SCADA = 4
     SHOW_SCADA_USER = 5
+
+    SHOW_SCADA = 1
+    SHOW_ELEMENT = 2
+    SHOW_STATUS = 3
