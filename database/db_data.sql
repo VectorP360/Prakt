@@ -31,7 +31,7 @@ INSERT INTO element_types (element_type_id ,name) VALUES (2, 'Шаговый д�
 INSERT INTO element_types (element_type_id ,name) VALUES (3, 'Датчик');
 INSERT INTO element_types (element_type_id ,name) VALUES (4, 'Панель');
 
-INSERT INTO element (name, material, element_type, facility_id) VALUES ('stm32', 'Кремний', 1, 1);
-INSERT INTO element (name, material, element_type, facility_id) VALUES ('NEMA 17', 'Железо', 2, 2);
-INSERT INTO element (name, material, element_type, facility_id) VALUES ('Термостат', 'Алюминий', 3, 3);
-INSERT INTO element (name, material, element_type, facility_id) VALUES ('Панель управления', 'Пластик', 4, 4);
+INSERT INTO element (name, material, element_type, facility) VALUES ('stm32', 'Кремний', 1, 1);
+INSERT INTO element (name, material, element_type, facility) VALUES ('NEMA 17', 'Железо', 2, 2);
+INSERT INTO element (name, material, element_type, facility) VALUES ('Термостат', 'Алюминий', 3, 3);
+INSERT INTO element (name, material, element_type, facility) VALUES ('Панель управления', 'Пластик', 4, 4);

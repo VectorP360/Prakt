@@ -93,8 +93,8 @@ CREATE TABLE element(
     material VARCHAR(128),
 
     element_type INTEGER,
-    facility_id INTEGER,
+    facility INTEGER,
 
     FOREIGN KEY (element_type) REFERENCES element_types (element_type_id),
-    FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
+    FOREIGN KEY (facility) REFERENCES facility (facility_id)
 );
