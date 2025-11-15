@@ -6,7 +6,8 @@ from . import (
     ScadaSchemeRepository, 
     PostsRepository, 
     FacilityTypesRepository, 
-    FacilityRepository
+    FacilityRepository,
+    ElementTypesRepository
     )
 
 class RepositoryManager:
@@ -30,3 +31,6 @@ class RepositoryManager:
     
     def get_facility_repository(self):
         return FacilityRepository(self._connection)
+    
+    def get_element_types_repository(self):
+        return ElementTypesRepository(self._connection)
