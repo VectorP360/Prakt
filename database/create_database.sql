@@ -98,5 +98,13 @@ CREATE TABLE element(
     FOREIGN KEY (element_type) REFERENCES element_types (element_type_id),
     FOREIGN KEY (facility) REFERENCES facility (facility_id)
 );
+
+CREATE TABLE conditions (
+    condition_id SERIAL PRIMARY KEY,
+    temperature INTEGER,
+    loading INTEGER,
+    pressure INTEGER,
+    facility INTEGER,
+
     FOREIGN KEY (facility) REFERENCES facility (facility_id)
 );

@@ -35,3 +35,8 @@ INSERT INTO element (name, material, element_type, facility) VALUES ('stm32', '�
 INSERT INTO element (name, material, element_type, facility) VALUES ('NEMA 17', 'Железо', 2, 2);
 INSERT INTO element (name, material, element_type, facility) VALUES ('Термостат', 'Алюминий', 3, 3);
 INSERT INTO element (name, material, element_type, facility) VALUES ('Панель управления', 'Пластик', 4, 4);
+
+INSERT INTO conditions (temperature, loading, pressure, facility) VALUES (65, 70, 43, 1);
+INSERT INTO conditions (temperature, loading, pressure, facility) VALUES (50, 62, 32, 2);
+INSERT INTO conditions (temperature, loading, pressure, facility) VALUES (74, 81, 48, 3);
+INSERT INTO conditions (temperature, loading, pressure, facility) VALUES (59, 67, 36, 4);
