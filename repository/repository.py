@@ -7,7 +7,8 @@ from . import (
     PostsRepository, 
     FacilityTypesRepository, 
     FacilityRepository,
-    ElementTypesRepository
+    ElementTypesRepository,
+    ElementRepository,
     )
 
 class RepositoryManager:
@@ -34,3 +35,6 @@ class RepositoryManager:
     
     def get_element_types_repository(self):
         return ElementTypesRepository(self._connection)
+    
+    def get_element_repository(self):
+        return ElementRepository(self._connection)

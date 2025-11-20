@@ -98,3 +98,5 @@ CREATE TABLE element(
     FOREIGN KEY (element_type) REFERENCES element_types (element_type_id),
     FOREIGN KEY (facility) REFERENCES facility (facility_id)
 );
+    FOREIGN KEY (facility) REFERENCES facility (facility_id)
+);
