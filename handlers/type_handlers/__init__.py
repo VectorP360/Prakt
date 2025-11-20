@@ -6,10 +6,10 @@ from .type_post_handler import TypePostHandler
 from .type_surname_handler import TypeSurnameHandler
 
 __all__ = [
-    'TypeFacilityHandler',
-    'TypeFathresnameHandler',
-    'TypeHireDateHandler',
-    'TypeNameHandler',
-    'TypePostHandler',
-    'TypeSurnameHandler'
+    "TypeFacilityHandler",
+    "TypeFathresnameHandler",
+    "TypeHireDateHandler",
+    "TypeNameHandler",
+    "TypePostHandler",
+    "TypeSurnameHandler",
 ]

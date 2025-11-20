@@ -4,7 +4,8 @@ class PostOut:
         self.name = name
 
     def __str__(self):
-        return f'id должности: {self.post_ID}, название должности: {self.name}'
+        return f"id должности: {self.post_ID}, название должности: {self.name}"
+
 
 class PostIn:
     def __init__(self, name: str):

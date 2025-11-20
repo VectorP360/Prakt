@@ -22,6 +22,6 @@ __all__ = [
     "WorkshopRepository",
     "ElementTypeRepository",
     "ElementRepository",
-    "ConditionRepository"
+    "ConditionRepository",
     # "RepositoryManager" # Эту строку я закомментирывал так, на всякий
 ]

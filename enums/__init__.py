@@ -4,9 +4,4 @@ from .client import Client
 from .post import UserPost
 
 
-__all__ = [
-    'Acceptance', 
-    'Command', 
-    'Client',
-    'UserPost'
-    ]
+__all__ = ["Acceptance", "Command", "Client", "UserPost"]

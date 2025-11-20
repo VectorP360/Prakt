@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class Command(IntEnum):
     CREATE_USER = 1
     SELECT_USER = 2

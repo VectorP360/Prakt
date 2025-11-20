@@ -4,7 +4,8 @@ class ElementTypeOut:
         self.name = name
 
     def __str__(self):
-        return f'id типа установок: {self.element_type_id}, название: {self.name}'
+        return f"id типа установок: {self.element_type_id}, название: {self.name}"
+
 
 class ElementTypeIn:
     def __init__(self, name: str):

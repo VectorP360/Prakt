@@ -4,7 +4,6 @@ from typing import Any, Optional
 
 
 class AbstractHandler(ABC):
-
     @abstractmethod
     def set_next(self, handler: AbstractHandler) -> AbstractHandler:
         pass
@@ -15,7 +14,6 @@ class AbstractHandler(ABC):
 
 
 class Handler(AbstractHandler):
-
     _next_handler: Optional[Handler] = None
 
     def set_next(self, handler: Handler) -> Handler:

@@ -10,14 +10,14 @@ from .now_facility_handler import NowFacilityHandler
 from .now_post_handler import NowPostHandler
 
 __all__ = [
-    'FacilityHandler',
-    'FathresnameHandler',
-    'HireDateHandler',
-    'PostHandler',
-    'SurnameHandler',
-    'NameHandler',
-    'NewFacilityHandler',
-    'NewPostHandler',
-    'NowFacilityHandler',
-    'NowPostHandler'
-    ]
+    "FacilityHandler",
+    "FathresnameHandler",
+    "HireDateHandler",
+    "PostHandler",
+    "SurnameHandler",
+    "NameHandler",
+    "NewFacilityHandler",
+    "NewPostHandler",
+    "NowFacilityHandler",
+    "NowPostHandler",
+]

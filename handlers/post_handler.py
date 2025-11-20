@@ -1,15 +1,18 @@
 from typing import Tuple
-from openpyxl.cell import Cell #, _CellOrMergedCell при импорте вызывает ошибку. Почему - Я не понял
+from openpyxl.cell import (
+    Cell,
+)  # , _CellOrMergedCell при импорте вызывает ошибку. Почему - Я не понял
 
 from handlers.abstract_handler import Handler
+
 
 class PostHandler(Handler):
     CHECKING_ROW = 4
     COLUMN_NAME = "Должность"
-    
-    def handle(self, row: Tuple[Cell, ...])-> bool:
+
+    def handle(self, row: Tuple[Cell, ...]) -> bool:
         cell: Cell = row[self.CHECKING_ROW]
-        
+
         if isinstance(cell, Cell) and cell.internal_value == self.COLUMN_NAME:
             return super().handle(row)
         else:

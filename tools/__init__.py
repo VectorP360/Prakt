@@ -6,9 +6,9 @@ from .scada_opener import ScadaOpener
 
 
 __all__ = [
-    'PasswordGenerator', 
-    'NewUsersExcelReader',
-    'SingUp',
-    'Executer',
-    'ScadaOpener'
-    ]
+    "PasswordGenerator",
+    "NewUsersExcelReader",
+    "SingUp",
+    "Executer",
+    "ScadaOpener",
+]
