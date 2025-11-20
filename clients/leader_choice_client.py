@@ -1,6 +1,6 @@
 from clients.scada_terminal_client import ScadaTerminalClient
 from clients.user_terminal_client import UserTerminalClient
-from repository.repository import RepositoryManager
+from repositories.repository import RepositoryManager
 
 class LeaderClient():
     def __init__(self, manager: RepositoryManager):

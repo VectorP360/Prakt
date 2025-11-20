@@ -10,7 +10,7 @@ from transliterate import translit
 
 from enums import UserPost
 from tools.password_generator import PasswordGenerator
-from repository.repository import RepositoryManager
+from repositories.repository import RepositoryManager
 from handlers import (
     FacilityHandler, 
     FathresnameHandler, 
@@ -99,7 +99,7 @@ class NewUsersExcelReader:
                 if not isinstance(hiring_date, datetime):
                     hiring_date = datetime.today()
                 
-                fetched_post = self.repository_manager.get_posts_repository().get_by_name(post_name)
+                fetched_post = self.repository_manager.get_post_repository().get_by_name(post_name)
                 if not fetched_post:
                     return data
                 
@@ -124,7 +124,7 @@ class NewUsersExcelReader:
         return data
     
 
-    def create_raport(self, users_data: List[Tuple]) -> None:
+    def create_raport(self, user_data: List[Tuple]) -> None:
         if not os.path.exists('./temp/raports'):
             os.mkdir('./temp/raports')
 
@@ -149,7 +149,7 @@ class NewUsersExcelReader:
 
         row_number: int = 2
 
-        for field in users_data:
+        for field in user_data:
 
             raport_sheet [f'A{row_number}'] = (f'{field[1]} {field[0]} {field[2]}')
             raport_sheet [f'B{row_number}'] = field[3]

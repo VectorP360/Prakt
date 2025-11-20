@@ -1,5 +1,5 @@
 from schemas.facility import FacilityOut
-from schemas.element_types import ElementTypeOut
+from schemas.element_type import ElementTypeOut
 
 class ElementOut:
     def __init__(self, element_id: int, name: str, material: str, element_type: ElementTypeOut, facility: FacilityOut):

@@ -1,4 +1,4 @@
-from schemas.facility_types import FacilityTypeOut
+from schemas.facility_type import FacilityTypeOut
 from schemas.workshop import WorkshopOut
 
 class FacilityOut:

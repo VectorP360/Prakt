@@ -3,7 +3,7 @@ from typing import List, Optional
 from psycopg import Connection
 
 from schemas.scada_scheme import ScadaSchemeOut, ScadaSchemeIn, FacilityOut
-from schemas.facility_types import FacilityTypeOut
+from schemas.facility_type import FacilityTypeOut
 from schemas.workshop import WorkshopOut
 
 class ScadaSchemeRepository:
@@ -35,7 +35,7 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.type_name, workshop.workshop_id, workshop.name, scada_scheme.content
+                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
@@ -70,13 +70,13 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.type_name, workshop.workshop_id, workshop.name, scada_scheme.content
+                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                            JOIN users ON facility.facility_id = users.facility_id
-                        WHERE users.user_id = %s''', (user_id,))
+                            JOIN user ON facility.facility_id = user.facility_id
+                        WHERE user.user_id = %s''', (user_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -107,7 +107,7 @@ class ScadaSchemeRepository:
 
         cursor.execute('''
                         SELECT scada_scheme_id, scada_scheme.name, facility.facility_id, facility.name,
-                        facility_type.facility_type_id, facility_type.type_name, workshop.workshop_id, workshop.name, scada_scheme.content
+                        facility_type.facility_type_id, facility_type.name, workshop.workshop_id, workshop.name, scada_scheme.content
                         FROM scada_scheme 
                         JOIN facility USING (facility_id)
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id

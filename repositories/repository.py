@@ -4,12 +4,12 @@ from . import (
     WorkshopRepository, 
     UserRepository, 
     ScadaSchemeRepository, 
-    PostsRepository, 
-    FacilityTypesRepository, 
+    PostRepository, 
+    FacilityTypeRepository, 
     FacilityRepository,
-    ElementTypesRepository,
+    ElementTypeRepository,
     ElementRepository,
-    ConditionsRepository
+    ConditionRepository
     )
 
 class RepositoryManager:
@@ -25,20 +25,20 @@ class RepositoryManager:
     def get_scada_scheme_repository(self):
         return ScadaSchemeRepository(self._connection)
     
-    def get_posts_repository(self):
-        return PostsRepository(self._connection)
+    def get_post_repository(self):
+        return PostRepository(self._connection)
     
     def get_facility_types_repository(self):
-        return FacilityTypesRepository(self._connection)
+        return FacilityTypeRepository(self._connection)
     
     def get_facility_repository(self):
         return FacilityRepository(self._connection)
     
     def get_element_types_repository(self):
-        return ElementTypesRepository(self._connection)
+        return ElementTypeRepository(self._connection)
     
     def get_element_repository(self):
         return ElementRepository(self._connection)
     
     def get_conditions_repository(self):
-        return ConditionsRepository(self._connection)
+        return ConditionRepository(self._connection)

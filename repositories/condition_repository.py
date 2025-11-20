@@ -2,12 +2,12 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from schemas.conditions import ConditionsIn, ConditionsOut
+from schemas.condition import ConditionsIn, ConditionsOut
 from schemas.facility import FacilityOut
-from schemas.facility_types import FacilityTypeOut
+from schemas.facility_type import FacilityTypeOut
 from schemas.workshop import WorkshopOut
 
-class ConditionsRepository:
+class ConditionRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
@@ -16,7 +16,7 @@ class ConditionsRepository:
 
         cursor.execute(
             """
-            INSERT INTO element (temprature, loading, pressure, facility) VALUES (%s, %s, %s, %s)
+            INSERT INTO condition (temperature, loading, pressure, facility_id) VALUES (%s, %s, %s, %s)
             RETURNING (condition_id, temperature, loading, pressure)
             """, (condition_in.temperature, condition_in.loading, condition_in.pressure, condition_in.facility.facility_id)
             )
@@ -38,10 +38,10 @@ class ConditionsRepository:
 
         cursor.execute(
             """
-            SELECT condition_id, temperature, loading, pressure, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+            SELECT condition_id, temperature, loading, pressure, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                     workshop.workshop_id, workshop.name
-            FROM conditions
-                JOIN facility ON conditions.facility = facility.facility_id
+            FROM condition
+                JOIN facility ON condition.facility_id = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
             WHERE condition_id = %s
@@ -77,14 +77,14 @@ class ConditionsRepository:
 
         cursor.execute(
             """
-            SELECT condition_id, temperature, loading, pressure, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+            SELECT condition_id, temperature, loading, pressure, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                     workshop.workshop_id, workshop.name
-            FROM conditions
-                JOIN facility ON conditions.facility = facility.facility_id
+            FROM condition
+                JOIN facility ON condition.facility_id = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                JOIN users on facility.facility_id = users.facility_id
-            WHERE users.user_id = %s
+                JOIN user on facility.facility_id = user.facility_id
+            WHERE user.user_id = %s
             """, (user_id,)
             )
         
@@ -118,13 +118,13 @@ class ConditionsRepository:
 
         cursor.execute(
             """
-            SELECT condition_id, temperature, loading, pressure, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+            SELECT condition_id, temperature, loading, pressure, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                     workshop.workshop_id, workshop.name
-            FROM conditions
-                JOIN facility ON conditions.facility = facility.facility_id
+            FROM condition
+                JOIN facility ON condition.facility_id = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                JOIN users on facility.facility_id = users.facility_id
+                JOIN user on facility.facility_id = user.facility_id
             """
             )
         
@@ -163,8 +163,8 @@ class ConditionsRepository:
 
         cursor.execute(
             """
-            UPDATE conditions SET temperature = %s, loading = %s, pressure = %s, facility = %s
-            WHERE conditions.condition_id = %s
+            UPDATE condition SET temperature = %s, loading = %s, pressure = %s, facility_id = %s
+            WHERE condition.condition_id = %s
 
             RETURNING condition_id, temperature, loading, pressure, facility
             """,(new_condition.temperature, new_condition.loading, new_condition.pressure, new_condition.facility.facility_id, condition_id,)
@@ -191,7 +191,7 @@ class ConditionsRepository:
 
         cursor = self.__connection.cursor()
         
-        cursor.execute('''DELETE FROM conditions WHERE condition_id = %s''', (condition_id,))
+        cursor.execute('''DELETE FROM condition WHERE condition_id = %s''', (condition_id,))
         self.__connection.commit()
 
         return bool(cursor.rowcount)

@@ -5,8 +5,8 @@ from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from transliterate import translit
 
-from repository.repository import RepositoryManager
-from schemas.user import UserIn, UserOut, PostsOut, FacilityOut
+from repositories.repository import RepositoryManager
+from schemas.user import UserIn, UserOut, PostOut, FacilityOut
 
 from tools import PasswordGenerator, NewUsersExcelReader
 from enums import Command, UserPost, Acceptance
@@ -23,7 +23,7 @@ from handlers.new_facility_handler import NewFacilityHandler
 class UserTerminalClient:
     def __init__(self, manager: RepositoryManager): 
         self.facility_repository = manager.get_facility_repository()
-        self.posts_repository = manager.get_posts_repository()
+        self.post_repository = manager.get_post_repository()
         self.user_repository = manager.get_user_repository()
         self.scada_scheme_repository = manager.get_scada_scheme_repository()
         self.facility_types_repository = manager.get_facility_types_repository()
@@ -50,7 +50,7 @@ class UserTerminalClient:
                     self.add_user()
 
                 case Command.SELECT_USER:
-                    self.show_users()
+                    self.show_user()
 
                 case Command.UPDATE_USER:
                     self.update_user()
@@ -129,7 +129,7 @@ class UserTerminalClient:
         input('Нажмите Enter что бы продолжить ')
 
 
-    def show_users(self):
+    def show_user(self):
         try:
             select_type = int(input('Вы хотите просмотреть одну запись с конкретным ID или сразу все?\n1: C конкретным ID\n2: Все записи\n'))
 
@@ -209,16 +209,16 @@ class UserTerminalClient:
 
     def delete_user(self):
         try:
-            users_id = []
+            user_id = []
             print('\nСотрудники:')
             
             for iteration in self.user_repository.get_all():
                 print(f'''ID: {iteration.user_id}, ФИО: {iteration.surname} {iteration.name} {iteration.fathersname}, должность: {iteration.post.name}''')
-                users_id.append(iteration.user_id)
+                user_id.append(iteration.user_id)
                 
             deleted_user = int(input('Введите ID сотрудника, чью запись хотите удалить: '))
 
-            if deleted_user in users_id:
+            if deleted_user in user_id:
                 acception = input('\nВы уверенны, что хотите удалить эту запись? \nПосле удаления её нельзя будет восстановить (y/n): ')
 
                 if acception == Acceptance.YES: 
@@ -285,7 +285,7 @@ class UserTerminalClient:
                     return
                 
                 if row[4]:
-                    fetched_post = self.posts_repository.get_by_name(name=str(row[4]))
+                    fetched_post = self.post_repository.get_by_name(name=str(row[4]))
                     if fetched_post:
                         edited_user.post = fetched_post
 
@@ -322,7 +322,7 @@ class UserTerminalClient:
         for user_data in data:
 
             fetched_facility = self.facility_repository.get_by_name(user_data[3])
-            fetched_post = self.posts_repository.get_by_name(user_data[4])
+            fetched_post = self.post_repository.get_by_name(user_data[4])
 
             if not fetched_facility:
                 print(f"Установка '{fetched_facility}' не была найдена в базе данных")
@@ -349,18 +349,18 @@ class UserTerminalClient:
 
 
     def select_user(self) -> Optional[UserOut]:
-        users = []
+        user = []
         iteration_number = 0
 
         for iteration in self.user_repository.get_all():
             print('Номер сотрудника: ',iteration_number,'\n',iteration)
-            users.append(iteration.user_id)
+            user.append(iteration.user_id)
             iteration_number += 1
 
         edit_user = int(input('\nВведите номер сотрудника, чью запись хотите изменить: '))
 
         try:
-            return self.user_repository.get_by_ID(users[edit_user])
+            return self.user_repository.get_by_ID(user[edit_user])
         except IndexError:
             return
 
@@ -383,19 +383,19 @@ class UserTerminalClient:
             return
         
 
-    def select_post(self) -> Optional[PostsOut]:
-        posts = []
+    def select_post(self) -> Optional[PostOut]:
+        post = []
         iteration_number = 0
 
         print('\nДолжности:')
-        for iteration in self.posts_repository.get_all():
+        for iteration in self.post_repository.get_all():
             print(f'Должность №{iteration_number}: Наименование: {iteration.name}')
-            posts.append(iteration.post_ID)
+            post.append(iteration.post_ID)
             iteration_number += 1
 
         post = int(input('Должность сотрудника (Номер должности): '))
 
         try:
-            return self.posts_repository.get_by_ID(posts[post])
+            return self.post_repository.get_by_ID(post[post])
         except IndexError:
             return

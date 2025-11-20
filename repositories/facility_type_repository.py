@@ -2,22 +2,22 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from schemas.facility_types import FacilityTypeOut
+from schemas.facility_type import FacilityTypeOut
 
 
-class FacilityTypesRepository:
+class FacilityTypeRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
-    def create(self, type_name: str)-> Optional[FacilityTypeOut]:
+    def create(self, name: str)-> Optional[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
         cursor.execute(
         '''
-        INSERT INTO facility_types (type_name) VALUES (%s)
+        INSERT INTO facility_type (name) VALUES (%s)
         ON CONFLICT (facility_type_id) DO NOTHING
-        RETURNING facility_type_id, type_name
-        ''', (type_name,)
+        RETURNING facility_type_id, name
+        ''', (name,)
         )
         self.__connection.commit()
         
@@ -30,7 +30,7 @@ class FacilityTypesRepository:
     def get_by_ID(self, type_id: str) -> Optional[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT facility_type_id, type_name FROM facility_types WHERE facility_type_ID = %s''', (type_id,))
+        cursor.execute('''SELECT facility_type_id, name FROM facility_type WHERE facility_type_id = %s''', (type_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -43,7 +43,7 @@ class FacilityTypesRepository:
     def get_all(self) -> List[FacilityTypeOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT facility_type_id, type_name FROM facility_types ORDER BY facility_type_ID;''')
+        cursor.execute('''SELECT facility_type_id, name FROM facility_type ORDER BY facility_type_id;''')
         
         result = []        
         for record in cursor.fetchall():
@@ -57,8 +57,8 @@ class FacilityTypesRepository:
 
         cursor.execute(
         '''
-        UPDATE facility_types SET type_name = %s WHERE facility_type_id = %s
-        RETURNING facility_type_id, type_name;''', (new_name, type_id,)
+        UPDATE facility_type SET name = %s WHERE facility_type_id = %s
+        RETURNING facility_type_id, name;''', (new_name, type_id,)
         )
 
         self.__connection.commit()
@@ -74,7 +74,7 @@ class FacilityTypesRepository:
     def delete(self, type_id: int) -> bool:
         cursor = self.__connection.cursor()
         
-        cursor.execute('''DELETE FROM facility_types WHERE facility_type_ID = %s''', (type_id,))
+        cursor.execute('''DELETE FROM facility_type WHERE facility_type_id = %s''', (type_id,))
         self.__connection.commit()
 
         return bool(cursor.rowcount)

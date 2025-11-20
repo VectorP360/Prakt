@@ -3,9 +3,9 @@ from typing import List, Optional
 from psycopg import Connection
 
 from schemas.element import ElementIn, ElementOut
-from schemas.element_types import ElementTypeOut
+from schemas.element_type import ElementTypeOut
 from schemas.facility import FacilityOut
-from schemas.facility_types import FacilityTypeOut
+from schemas.facility_type import FacilityTypeOut
 from schemas.workshop import WorkshopOut
 
 class ElementRepository:
@@ -17,7 +17,7 @@ class ElementRepository:
 
         cursor.execute(
             """
-            INSERT INTO element (name, material, element_type, facility_id) VALUES (%s, %s, %s, %s)
+            INSERT INTO element (name, material, element_type_id, facility_id) VALUES (%s, %s, %s, %s)
             RETURNING (element_id, name, material)
             """, (element_in.name, element_in.material, element_in.element_type.element_type_id, element_in.facility.facility_id)
             )
@@ -39,10 +39,10 @@ class ElementRepository:
 
         cursor.execute(
             """
-            SELECT element_id, element.name, material, element_types.element_type_id, element_types.name , facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+            SELECT element_id, element.name, material, element_type.element_type_id, element_type.name , facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                     workshop.workshop_id, workshop.name
             FROM element
-                JOIN element_types ON element.element_type = element_types.element_type_id
+                JOIN element_type ON element.element_type_id = element_type.element_type_id
                 JOIN facility ON element.facility = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
@@ -82,15 +82,15 @@ class ElementRepository:
 
         cursor.execute(
             """
-            SELECT element_id, element.name, material, element_types.element_type_id, element_types.name , facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+            SELECT element_id, element.name, material, element_type.element_type_id, element_type.name , facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                     workshop.workshop_id, workshop.name
             FROM element
-                JOIN element_types ON element.element_type = element_types.element_type_id
+                JOIN element_type ON element.element_type_id = element_type.element_type_id
                 JOIN facility ON element.facility = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                JOIN users on facility.facility_id = users.facility_id
-            WHERE users.user_id = %s
+                JOIN user on facility.facility_id = user.facility_id
+            WHERE user.user_id = %s
             """, (user_id,)
             )
         fetched_row = cursor.fetchall()
@@ -131,10 +131,10 @@ class ElementRepository:
 
         cursor.execute(
             """
-            SELECT element_id, element.name, material, element_types.element_type_id, element_types.name , facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
+            SELECT element_id, element.name, material, element_type.element_type_id, element_type.name , facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                     workshop.workshop_id, workshop.name
             FROM element
-                JOIN element_types ON element.element_type = element_types.element_type_id
+                JOIN element_type ON element.element_type_id = element_type.element_type_id
                 JOIN facility ON element.facility = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
@@ -179,7 +179,7 @@ class ElementRepository:
 
         cursor.execute(
             """
-            UPDATE element SET name = %s, material = %s, element_type = %s, facility = %s
+            UPDATE element SET name = %s, material = %s, element_type_id = %s, facility_id = %s
             WHERE element.element_id = %s
 
             RETURNING element_id, name, material, element_type, facility

@@ -2,10 +2,10 @@ from typing import List, Optional
 
 from psycopg import Connection
 
-from schemas.element_types import ElementTypeOut
+from schemas.element_type import ElementTypeOut
 
 
-class ElementTypesRepository:
+class ElementTypeRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
@@ -14,7 +14,7 @@ class ElementTypesRepository:
 
         cursor.execute(
         '''
-        INSERT INTO element_types (name) VALUES (%s)
+        INSERT INTO element_type (name) VALUES (%s)
         ON CONFLICT (element_type_id) DO NOTHING
         RETURNING element_type_id, name
         ''', (name,)
@@ -30,7 +30,7 @@ class ElementTypesRepository:
     def get_by_ID(self, type_id: str) -> Optional[ElementTypeOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT element_type_id, name FROM element_types WHERE element_type_id = %s''', (type_id,))
+        cursor.execute('''SELECT element_type_id, name FROM element_type WHERE element_type_id = %s''', (type_id,))
 
         fetched_row = cursor.fetchone()
         
@@ -43,7 +43,7 @@ class ElementTypesRepository:
     def get_all(self) -> List[ElementTypeOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT element_type_id, name FROM element_types ORDER BY element_type_ID;''')
+        cursor.execute('''SELECT element_type_id, name FROM element_type ORDER BY element_type_id;''')
         
         result = []        
         for record in cursor.fetchall():
@@ -57,7 +57,7 @@ class ElementTypesRepository:
 
         cursor.execute(
         '''
-        UPDATE element_types SET name = %s WHERE element_type_id = %s
+        UPDATE element_type SET name = %s WHERE element_type_id = %s
         RETURNING element_type_id, name;''', (new_name, type_id,)
         )
 
@@ -74,7 +74,7 @@ class ElementTypesRepository:
     def delete(self, type_id: int) -> bool:
         cursor = self.__connection.cursor()
         
-        cursor.execute('''DELETE FROM element_types WHERE element_type_id = %s''', (type_id,))
+        cursor.execute('''DELETE FROM element_type WHERE element_type_id = %s''', (type_id,))
         self.__connection.commit()
 
         return bool(cursor.rowcount)

@@ -4,8 +4,8 @@ from psycopg import Connection
 
 from schemas.user import UserOut, UserIn
 from schemas.facility import FacilityOut
-from schemas.posts import PostsOut
-from schemas.facility_types import FacilityTypeOut
+from schemas.post import PostOut
+from schemas.facility_type import FacilityTypeOut
 from schemas.workshop import WorkshopOut
 
 class UserRepository:
@@ -17,7 +17,7 @@ class UserRepository:
 
         cursor.execute(
         '''
-        INSERT INTO users (surname, name, fathersname, facility_id, post_id, hire_date, login, password) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        INSERT INTO user (surname, name, fathersname, facility_id, post_id, hire_date, login, password) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
         RETURNING user_id, surname, name, fathersname, facility_id, post_id, hire_date, login, password
         ''', (new_user.surname, new_user.name, new_user.fathersname, new_user.facility.facility_id, new_user.post.post_ID,
             new_user.hire_date, new_user.login, new_user.password,)
@@ -44,13 +44,13 @@ class UserRepository:
     def get_by_ID(self, user_id: str) -> Optional[UserOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
-                        workshop.workshop_id, workshop.name, posts.post_id, posts.name, hire_date, login, password
-                        FROM users
-                        JOIN facility ON users.facility_id = facility.facility_id
+        cursor.execute('''SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
+                        FROM user
+                        JOIN facility ON user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                        JOIN posts USING (post_id)
+                        JOIN post USING (post_id)
                         WHERE user_id = %s''', (user_id,))
 
         fetched_row = cursor.fetchone()
@@ -73,7 +73,7 @@ class UserRepository:
                         name = fetched_row[9]
                     )
                 ),
-                post = PostsOut(
+                post = PostOut(
                     post_ID = fetched_row[10],
                     name = fetched_row[11]
                 ),
@@ -87,14 +87,14 @@ class UserRepository:
     def get_by_login(self, login: str, password: str) -> Optional[UserOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
-                        workshop.workshop_id, workshop.name, posts.post_id, posts.name, hire_date, login, password
-                        FROM users
-                        JOIN facility ON users.facility_id = facility.facility_id
+        cursor.execute('''SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
+                        FROM user
+                        JOIN facility ON user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                        JOIN posts USING (post_id)
-                        WHERE users.login = %s AND users.password = %s''', 
+                        JOIN post USING (post_id)
+                        WHERE user.login = %s AND user.password = %s''', 
                         (login, password))
         
         fetched_row = cursor.fetchone()
@@ -117,7 +117,7 @@ class UserRepository:
                         name = fetched_row[9]
                     )
                 ),
-                post = PostsOut(
+                post = PostOut(
                     post_ID = fetched_row[10],
                     name = fetched_row[11]
                 ),
@@ -132,14 +132,14 @@ class UserRepository:
     def get_by_FIO(self, surname: str, name: str, fathersname: str, facility_name: str, post_name: str) -> Optional[UserOut]:
         cursor = self.__connection.cursor()
 
-        cursor.execute('''SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
-                        workshop.workshop_id, workshop.name, posts.post_id, posts.name, hire_date, login, password
-                        FROM users
-                        JOIN facility ON users.facility_id = facility.facility_id
+        cursor.execute('''SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
+                        FROM user
+                        JOIN facility ON user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                        JOIN posts USING (post_id)
-                        WHERE surname = %s AND users.name = %s AND fathersname = %s AND facility.name = %s AND posts.name = %s''', 
+                        JOIN post USING (post_id)
+                        WHERE surname = %s AND user.name = %s AND fathersname = %s AND facility.name = %s AND post.name = %s''', 
                         (surname,name,fathersname,facility_name,post_name))
 
         fetched_row = cursor.fetchone()
@@ -162,7 +162,7 @@ class UserRepository:
                         name = fetched_row[9]
                     )
                 ),
-                post = PostsOut(
+                post = PostOut(
                     post_ID = fetched_row[10],
                     name = fetched_row[11]
                 ),
@@ -178,13 +178,13 @@ class UserRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                        SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
-                        workshop.workshop_id, workshop.name, posts.post_id, posts.name, hire_date, login, password
-                        FROM users
-                        JOIN facility ON users.facility_id = facility.facility_id
+                        SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
+                        FROM user
+                        JOIN facility ON user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                        JOIN posts USING (post_id)
+                        JOIN post USING (post_id)
                         ORDER BY user_ID;
                        ''')
         
@@ -207,7 +207,7 @@ class UserRepository:
                         name = record[9]
                     )
                 ),
-                post = PostsOut(
+                post = PostOut(
                     post_ID = record[10],
                     name = record[11]
                 ),
@@ -222,14 +222,14 @@ class UserRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute("""
-                        SELECT user_id, surname, users.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.type_name, 
-                        workshop.workshop_id, workshop.name, posts.post_id, posts.name, hire_date, login, password, scada_scheme_id, scada_scheme.name, scada_scheme.content
-                        FROM users
-                        JOIN facility ON users.facility_id = facility.facility_id
+                        SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password, scada_scheme_id, scada_scheme.name, scada_scheme.content
+                        FROM user
+                        JOIN facility ON user.facility_id = facility.facility_id
                             JOIN scada_scheme on facility.facility_id = scada_scheme.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                        JOIN posts USING (post_id)
+                        JOIN post USING (post_id)
                         WHERE scada_scheme.scada_scheme_id = %s
                        """,
                        (scada_scheme_id,))
@@ -254,7 +254,7 @@ class UserRepository:
                         name = fetched_row[9]
                     )
                 ),
-                post = PostsOut(
+                post = PostOut(
                     post_ID = fetched_row[10],
                     name = fetched_row[11]
                 ),
@@ -271,7 +271,7 @@ class UserRepository:
 
         cursor.execute(
         '''
-        UPDATE users SET surname = %s, name = %s, fathersname = %s, facility_id = %s, post_id = %s, hire_date = %s, login = %s, password = %s
+        UPDATE user SET surname = %s, name = %s, fathersname = %s, facility_id = %s, post_id = %s, hire_date = %s, login = %s, password = %s
         WHERE user_id = %s
 
         RETURNING user_id, surname, name, fathersname, hire_date, login, password''', 
@@ -303,7 +303,7 @@ class UserRepository:
     def delete(self, user_id: int) -> bool:
         cursor = self.__connection.cursor()
         
-        cursor.execute('''DELETE FROM users WHERE user_ID = %s''', (user_id,))
+        cursor.execute('''DELETE FROM user WHERE user_ID = %s''', (user_id,))
         self.__connection.commit()
 
         return bool(cursor.rowcount)

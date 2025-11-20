@@ -1,12 +1,12 @@
 from .facility_repository import FacilityRepository
-from .facility_types_repository import FacilityTypesRepository
-from .posts_repository import PostsRepository
+from .facility_type_repository import FacilityTypeRepository
+from .post_repository import PostRepository
 from .scada_repository import ScadaSchemeRepository
 from .user_repository import UserRepository
 from .workshop_repository import WorkshopRepository
-from .element_types_repository import ElementTypesRepository
+from .element_type_repository import ElementTypeRepository
 from .element_repository import ElementRepository
-from .conditions_repository import ConditionsRepository
+from .condition_repository import ConditionRepository
 # from .repository import RepositoryManager
 
 # При использовании программы, она начинает жаловаться на circular import.
@@ -15,13 +15,13 @@ from .conditions_repository import ConditionsRepository
 
 __all__ = [
     "FacilityRepository",
-    "FacilityTypesRepository",
-    "PostsRepository",
+    "FacilityTypeRepository",
+    "PostRepository",
     "ScadaSchemeRepository",
     "UserRepository",
     "WorkshopRepository",
-    "ElementTypesRepository",
+    "ElementTypeRepository",
     "ElementRepository",
-    "ConditionsRepository"
+    "ConditionRepository"
     # "RepositoryManager" # Эту строку я закомментирывал так, на всякий
 ]

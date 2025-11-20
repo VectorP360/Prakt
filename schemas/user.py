@@ -1,8 +1,8 @@
 from schemas.facility import FacilityOut
-from schemas.posts import PostsOut
+from schemas.post import PostOut
 
 class UserOut:
-    def __init__(self, user_id: int, surname:str, name:str, fathersname:str, facility:FacilityOut, post: PostsOut, hire_date:str, login:str, password:str):
+    def __init__(self, user_id: int, surname:str, name:str, fathersname:str, facility:FacilityOut, post: PostOut, hire_date:str, login:str, password:str):
         self.user_id = user_id
         self.surname = surname
         self.name = name
@@ -23,7 +23,7 @@ class UserOut:
         Логин {self.login}\n'''
 
 class UserIn:
-    def __init__(self, surname:str, name:str, fathersname:str, facility:FacilityOut, post: PostsOut, hire_date:str, login:str, password:str):
+    def __init__(self, surname:str, name:str, fathersname:str, facility:FacilityOut, post: PostOut, hire_date:str, login:str, password:str):
         self.surname = surname
         self.name = name
         self.fathersname = fathersname

@@ -1,6 +1,6 @@
 from psycopg import connect
 
-from repository.repository import RepositoryManager
+from repositories.repository import RepositoryManager
 
 from tools.executing import Executer
 

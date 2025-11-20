@@ -1,12 +1,12 @@
-from .facility_types import FacilityTypeOut, FacilityTypeIn
+from .facility_type import FacilityTypeOut, FacilityTypeIn
 from .facility import FacilityOut, FacilityIn
-from .posts import PostsOut, PostsIn
+from .post import PostOut, PostIn
 from .scada_scheme import ScadaSchemeOut, ScadaSchemeIn
 from .user import UserOut, UserIn
 from .workshop import WorkshopOut, WorkshopIn
-from .element_types import ElementTypeOut, ElementTypeIn
+from .element_type import ElementTypeOut, ElementTypeIn
 from .element import ElementOut, ElementIn
-from .conditions import ConditionsOut, ConditionsIn
+from .condition import ConditionsOut, ConditionsIn
 
 
 __all__ = [
@@ -14,8 +14,8 @@ __all__ = [
     FacilityTypeIn,
     FacilityOut,
     FacilityIn,
-    PostsOut,
-    PostsIn,
+    PostOut,
+    PostIn,
     ScadaSchemeOut,
     ScadaSchemeIn,
     UserOut,

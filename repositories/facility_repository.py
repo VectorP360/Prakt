@@ -61,7 +61,7 @@ class FacilityRepository:
 
         cursor.execute(
         '''
-        INSERT INTO facility (facility_name, facility_type_id, workshop_id, scada_scheme_id) VALUES (%s,%s,%s,%s)
+        INSERT INTO facility (name, facility_type_id, workshop_id) VALUES (%s,%s,%s)
         RETURNING facility_id, name,facility_type_id, workshop_id
         ''', (new_facility.name, new_facility.type.facility_type_id, new_facility.workshop.workshop_id,)
         )
@@ -83,7 +83,7 @@ class FacilityRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                       SELECT facility_id, facility.name, type_id, facility_type.type_name, workshop_id, workshop.name 
+                       SELECT facility_id, facility.name, type_id, facility_type.name, workshop_id, workshop.name
                        FROM facility 
                         JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                         JOIN workshop USING (workshop_id)
@@ -113,7 +113,7 @@ class FacilityRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                       SELECT facility_id, facility.name, type_id, facility_type.type_name, workshop_id, workshop.name 
+                       SELECT facility_id, facility.name, type_id, facility_type.name, workshop_id, workshop.name
                        FROM facility 
                         JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                         JOIN workshop USING (workshop_id)
@@ -143,7 +143,7 @@ class FacilityRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute('''
-                        SELECT facility_id, facility.name, facility_type_id, facility_type.type_name, workshop_id, 
+                        SELECT facility_id, facility.name, facility_type_id, facility_type.name, workshop_id,
                             workshop.name
                         FROM facility
                         JOIN facility_type ON facility.type_id = facility_type.facility_type_id
@@ -165,7 +165,7 @@ class FacilityRepository:
 
         cursor.execute(
         '''
-        UPDATE facility SET facility_name = %s, facility_type_id = %s, workshop_id = %s
+        UPDATE facility SET name = %s, facility_type_id = %s, workshop_id = %s
         WHERE facility_id = %s
 
         RETURNING facility_id, facility_name

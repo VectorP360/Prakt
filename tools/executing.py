@@ -1,11 +1,11 @@
-from repository.repository import RepositoryManager
+from repositories.repository import RepositoryManager
 
 from clients.user_terminal_client import UserTerminalClient
 from clients.scada_terminal_client import ScadaTerminalClient
 from clients.leader_choice_client import LeaderClient
 from  clients.worker_client import WorkerClient
 
-from enums.posts import UserPost
+from enums.post import UserPost
 
 from tools.sing_up import SingUp
 

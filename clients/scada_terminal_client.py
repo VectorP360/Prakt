@@ -1,6 +1,6 @@
 from typing import Optional
 
-from repository.repository import RepositoryManager
+from repositories.repository import RepositoryManager
 from enums import Command
 from enums import Acceptance
 
