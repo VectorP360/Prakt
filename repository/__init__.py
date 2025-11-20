@@ -6,6 +6,7 @@ from .user_repository import UserRepository
 from .workshop_repository import WorkshopRepository
 from .element_types_repository import ElementTypesRepository
 from .element_repository import ElementRepository
+from .conditions_repository import ConditionsRepository
 # from .repository import RepositoryManager
 
 # При использовании программы, она начинает жаловаться на circular import.
@@ -21,5 +22,6 @@ __all__ = [
     "WorkshopRepository",
     "ElementTypesRepository",
     "ElementRepository",
+    "ConditionsRepository"
     # "RepositoryManager" # Эту строку я закомментирывал так, на всякий
 ]

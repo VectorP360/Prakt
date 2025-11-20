@@ -6,6 +6,7 @@ from .user import UserOut, UserIn
 from .workshop import WorkshopOut, WorkshopIn
 from .element_types import ElementTypeOut, ElementTypeIn
 from .element import ElementOut, ElementIn
+from .conditions import ConditionsOut, ConditionsIn
 
 
 __all__ = [
@@ -24,5 +25,7 @@ __all__ = [
     ElementTypeOut,
     ElementTypeIn,
     ElementOut,
-    ElementIn
+    ElementIn,
+    ConditionsIn,
+    ConditionsOut
 ]

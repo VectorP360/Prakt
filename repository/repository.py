@@ -9,6 +9,7 @@ from . import (
     FacilityRepository,
     ElementTypesRepository,
     ElementRepository,
+    ConditionsRepository
     )
 
 class RepositoryManager:
@@ -38,3 +39,6 @@ class RepositoryManager:
     
     def get_element_repository(self):
         return ElementRepository(self._connection)
+    
+    def get_conditions_repository(self):
+        return ConditionsRepository(self._connection)

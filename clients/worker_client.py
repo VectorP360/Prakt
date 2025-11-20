@@ -14,6 +14,7 @@ class WorkerClient:
         self.facility_repository = manager.get_facility_repository()
         self.scada_scheme_repository = manager.get_scada_scheme_repository()
         self.element_repository = manager.get_element_repository()
+        self.conditions_repository = manager.get_conditions_repository()
         self.user = user
 
     def run(self) -> None:
@@ -39,7 +40,8 @@ class WorkerClient:
                     for founded_element in self.element_repository.get_by_user(user_id = self.user.user_id):
                         print(founded_element)
 
-                case Command.SHOW_STATUS:...
+                case Command.SHOW_STATUS:
+                    print(self.conditions_repository.get_by_user(user_id = self.user.user_id))
 
                 case Command.EXIT:
                     return
