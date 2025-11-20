@@ -80,8 +80,8 @@ class ScadaSchemeRepository:
                         JOIN facility USING (facility_id)
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
-                            JOIN user ON facility.facility_id = user.facility_id
-                        WHERE user.user_id = %s""",
+                            JOIN public.user ON facility.facility_id = public.user.facility_id
+                        WHERE public.user.user_id = %s""",
             (user_id,),
         )
 

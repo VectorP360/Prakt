@@ -1,19 +1,19 @@
-CREATE TABLE workshop(
+CREATE TABLE public.workshop(
     workshop_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE facility_type(
+CREATE TABLE public.facility_type(
     facility_type_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE post(
+CREATE TABLE public.post(
     post_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE facility(
+CREATE TABLE public.facility(
     facility_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     
@@ -24,7 +24,7 @@ CREATE TABLE facility(
     FOREIGN KEY (workshop_id) REFERENCES workshop (workshop_id)
 );
 
-CREATE TABLE scada_scheme(
+CREATE TABLE public.scada_scheme(
     scada_scheme_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     content TEXT,
@@ -33,7 +33,7 @@ CREATE TABLE scada_scheme(
     FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
 );
 
-CREATE TABLE user(
+CREATE TABLE public.user(
     user_id SERIAL PRIMARY KEY,
     
     surname VARCHAR(128) NOT NULL,
@@ -51,12 +51,12 @@ CREATE TABLE user(
     FOREIGN KEY (post_id) REFERENCES post (post_id)
 );
 
-CREATE TABLE element_type(
+CREATE TABLE public.element_type(
     element_type_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE element(
+CREATE TABLE public.element(
     element_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     material VARCHAR(128),
@@ -68,7 +68,7 @@ CREATE TABLE element(
     FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
 );
 
-CREATE TABLE condition (
+CREATE TABLE public.condition (
     condition_id SERIAL PRIMARY KEY,
     temperature INTEGER,
     loading INTEGER,

@@ -18,7 +18,7 @@ class UserRepository:
 
         cursor.execute(
             """
-        INSERT INTO user (surname, name, fathersname, facility_id, post_id, hire_date, login, password) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        INSERT INTO public.user (surname, name, fathersname, facility_id, post_id, hire_date, login, password) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
         RETURNING user_id, surname, name, fathersname, facility_id, post_id, hire_date, login, password
         """,
             (
@@ -56,7 +56,7 @@ class UserRepository:
         cursor.execute(
             """SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                         workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
-                        FROM user
+                        FROM public.user
                         JOIN facility ON user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
@@ -96,28 +96,28 @@ class UserRepository:
 
         cursor.execute(
         """
-        SELECT 
-        user_id, 
-        surname, 
-        name, 
-        fathersname, 
-        facility.facility_id, 
-        facility.name, 
-        facility_type.facility_type_id, 
+        SELECT
+        user_id,
+        surname,
+        public.user.name as user_name,
+        fathersname,
+        facility.facility_id,
+        facility.name,
+        facility_type.facility_type_id,
         facility_type.name,
-        workshop.workshop_id, 
-        workshop.name, 
-        post.post_id, 
-        post.name, 
-        hire_date, 
-        login, 
+        workshop.workshop_id,
+        workshop.name,
+        post.post_id,
+        post.name,
+        hire_date,
+        login,
         password
-        FROM user
-        JOIN facility ON user.facility_id = facility.facility_id
+        FROM public.user
+        JOIN facility ON public.user.facility_id = facility.facility_id
         JOIN facility_type ON facility.type_id = facility_type.facility_type_id
         JOIN workshop ON facility.workshop_id = workshop.workshop_id
         JOIN post USING (post_id)
-        WHERE user.login = %s AND user.password = %s
+        WHERE public.user.login = %s AND public.user.password = %s
         """,
             (login, password),
         )
@@ -159,14 +159,14 @@ class UserRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute(
-            """SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+            """SELECT user_id, surname, public.user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                         workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
-                        FROM user
-                        JOIN facility ON user.facility_id = facility.facility_id
+                        FROM public.user
+                        JOIN facility ON public.user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
                         JOIN post USING (post_id)
-                        WHERE surname = %s AND user.name = %s AND fathersname = %s AND facility.name = %s AND post.name = %s""",
+                        WHERE surname = %s AND public.user.name = %s AND fathersname = %s AND facility.name = %s AND post.name = %s""",
             (surname, name, fathersname, facility_name, post_name),
         )
 
@@ -200,10 +200,10 @@ class UserRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute("""
-                        SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
-                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
-                        FROM user
-                        JOIN facility ON user.facility_id = facility.facility_id
+                        SELECT user_id, surname, public.user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password,
+                        FROM public.user
+                        JOIN facility ON public.user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
                         JOIN post USING (post_id)
@@ -236,10 +236,10 @@ class UserRepository:
 
         cursor.execute(
             """
-                        SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+                        SELECT user_id, surname, public.user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                         workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password, scada_scheme_id, scada_scheme.name, scada_scheme.content
-                        FROM user
-                        JOIN facility ON user.facility_id = facility.facility_id
+                        FROM public.user
+                        JOIN facility ON public.user.facility_id = facility.facility_id
                             JOIN scada_scheme on facility.facility_id = scada_scheme.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
@@ -280,7 +280,7 @@ class UserRepository:
 
         cursor.execute(
             """
-        UPDATE user SET surname = %s, name = %s, fathersname = %s, facility_id = %s, post_id = %s, hire_date = %s, login = %s, password = %s
+        UPDATE public.user SET surname = %s, name = %s, fathersname = %s, facility_id = %s, post_id = %s, hire_date = %s, login = %s, password = %s
         WHERE user_id = %s
 
         RETURNING user_id, surname, name, fathersname, hire_date, login, password""",
@@ -320,7 +320,7 @@ class UserRepository:
     def delete(self, user_id: int) -> bool:
         cursor = self.__connection.cursor()
 
-        cursor.execute("""DELETE FROM user WHERE user_ID = %s""", (user_id,))
+        cursor.execute("""DELETE FROM public.user WHERE user_ID = %s""", (user_id,))
         self.__connection.commit()
 
         return bool(cursor.rowcount)
