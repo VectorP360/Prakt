@@ -20,8 +20,8 @@ CREATE TABLE public.facility(
     type_id INTEGER NOT NULL,
     workshop_id INTEGER NOT NULL,
     
-    FOREIGN KEY (type_id) REFERENCES facility_type (facility_type_id),
-    FOREIGN KEY (workshop_id) REFERENCES workshop (workshop_id)
+    FOREIGN KEY (type_id) REFERENCES public.facility_type (facility_type_id),
+    FOREIGN KEY (workshop_id) REFERENCES public.workshop (workshop_id)
 );
 
 CREATE TABLE public.scada_scheme(
@@ -30,7 +30,7 @@ CREATE TABLE public.scada_scheme(
     content TEXT,
     
     facility_id INTEGER NOT NULL,
-    FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
+    FOREIGN KEY (facility_id) REFERENCES public.facility (facility_id)
 );
 
 CREATE TABLE public.user(
@@ -47,12 +47,17 @@ CREATE TABLE public.user(
     facility_id INTEGER,
     post_id INTEGER,
     
-    FOREIGN KEY (facility_id) REFERENCES facility (facility_id),
-    FOREIGN KEY (post_id) REFERENCES post (post_id)
+    FOREIGN KEY (facility_id) REFERENCES public.facility (facility_id),
+    FOREIGN KEY (post_id) REFERENCES public.post (post_id)
 );
 
 CREATE TABLE public.element_type(
     element_type_id SERIAL PRIMARY KEY,
+    name VARCHAR(128) NOT NULL
+);
+
+CREATE TABLE public.operation (
+    operation_id SERIAL PRIMARY KEY,
     name VARCHAR(128) NOT NULL
 );
 
@@ -64,8 +69,8 @@ CREATE TABLE public.element(
     element_type_id INTEGER NOT NULL,
     facility_id INTEGER NOT NULL,
     
-    FOREIGN KEY (element_type_id) REFERENCES element_type (element_type_id),
-    FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
+    FOREIGN KEY (element_type_id) REFERENCES public.element_type (element_type_id),
+    FOREIGN KEY (facility_id) REFERENCES public.facility (facility_id)
 );
 
 CREATE TABLE public.condition (
@@ -75,5 +80,16 @@ CREATE TABLE public.condition (
     pressure INTEGER,
     facility_id INTEGER NOT NULL,
     
-    FOREIGN KEY (facility_id) REFERENCES facility (facility_id)
+    FOREIGN KEY (facility_id) REFERENCES public.facility (facility_id)
+);
+
+CREATE TABLE public.log (
+    log_id SERIAL PRIMARY KEY,
+    operation_date TIMESTAMP NOT NULL,
+
+    user_id INTEGER,
+    operation_id INTEGER,
+
+    FOREIGN KEY (user_id) REFERENCES public.user (user_id),
+    FOREIGN KEY (operation_id) REFERENCES public.operation (operation_id)
 );

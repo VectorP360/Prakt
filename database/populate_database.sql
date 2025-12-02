@@ -40,3 +40,10 @@ INSERT INTO public.condition (temperature, loading, pressure, facility_id) VALUE
 INSERT INTO public.condition (temperature, loading, pressure, facility_id) VALUES (50, 62, 32, 2);
 INSERT INTO public.condition (temperature, loading, pressure, facility_id) VALUES (74, 81, 48, 3);
 INSERT INTO public.condition (temperature, loading, pressure, facility_id) VALUES (59, 67, 36, 4);
+
+INSERT INTO public.operation ("name") VALUES ('LOGIN');
+INSERT INTO public.operation ("name") VALUES ('EXIT');
+INSERT INTO public.operation ("name") VALUES ('CREATE');
+INSERT INTO public.operation ("name") VALUES ('READ');
+INSERT INTO public.operation ("name") VALUES ('UPDATE');
+INSERT INTO public.operation ("name") VALUES ('DELETE');
