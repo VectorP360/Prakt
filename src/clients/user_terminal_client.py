@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+import logging
 
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
@@ -7,6 +8,8 @@ from transliterate import translit
 
 from src.repositories.repository import RepositoryManager
 from src.schemas.user import UserIn, UserOut, PostOut, FacilityOut
+
+from tools.db_logger import MEGA_LOGGER_40000
 
 from src.tools import PasswordGenerator, NewUsersExcelReader
 from src.enums import Command, UserPost, Acceptance
@@ -19,16 +22,18 @@ from src.handlers.new_post_handler import NewPostHandler
 from src.handlers.now_facility_handler import NowFacilityHandler
 from src.handlers.new_facility_handler import NewFacilityHandler
 
-
 class UserTerminalClient:
-    def __init__(self, manager: RepositoryManager):
+    def __init__(self, manager: RepositoryManager, user: UserOut):
         self.facility_repository = manager.get_facility_repository()
         self.post_repository = manager.get_post_repository()
         self.user_repository = manager.get_user_repository()
         self.scada_scheme_repository = manager.get_scada_scheme_repository()
         self.facility_types_repository = manager.get_facility_types_repository()
         self.workshop_repository = manager.get_workshop_repository()
+        self.operation_repository = manager.get_operation_repository()
         self.manager = manager
+        self.logger = MEGA_LOGGER_40000(manager=manager)
+        self.user = user
 
     def run(self) -> None:
         operation = None
@@ -50,23 +55,30 @@ class UserTerminalClient:
             match operation:
                 case Command.CREATE_USER:
                     self.add_user()
+                    self.logger.log(user=self.user, operation="CREATE")
 
                 case Command.SELECT_USER:
                     self.show_user()
+                    self.logger.log(user=self.user, operation="READ")
 
                 case Command.UPDATE_USER:
                     self.update_user()
+                    self.logger.log(user=self.user, operation="UPDATE")
 
                 case Command.DELETE_USER:
                     self.delete_user()
+                    self.logger.log(user=self.user, operation="DELETE")
 
                 case Command.EDIT_BY_EXEL:
                     self.edit_user_from_excel()
+                    self.logger.log(user=self.user, operation="UPDATE")
 
                 case Command.CREATE_BY_EXCEL:
                     self.add_user_from_excel()
+                    self.logger.log(user=self.user, operation="CREATE")
 
                 case Command.EXIT:
+                    self.logger.log(user=self.user, operation="EXIT")
                     return
 
                 case _:
@@ -420,9 +432,9 @@ class UserTerminalClient:
             post.append(iteration.post_ID)
             iteration_number += 1
 
-        post = int(input("Должность сотрудника (Номер должности): "))
+        post_num = int(input("Должность сотрудника (Номер должности): "))
 
         try:
-            return self.post_repository.get_by_ID(post[post])
+            return self.post_repository.get_by_ID(post[post_num])
         except IndexError:
             return

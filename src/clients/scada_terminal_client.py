@@ -4,17 +4,22 @@ from src.repositories.repository import RepositoryManager
 from src.enums import Command
 from src.enums import Acceptance
 
+from tools.db_logger import MEGA_LOGGER_40000
+
 from src.schemas.facility import FacilityOut
 from src.schemas.scada_scheme import ScadaSchemeIn, ScadaSchemeOut
+from src.schemas.user import UserOut
 
 from src.tools.scada_opener import ScadaOpener
 
 
 class ScadaTerminalClient:
-    def __init__(self, manager: RepositoryManager):
+    def __init__(self, manager: RepositoryManager, user: UserOut):
         self.facility_repository = manager.get_facility_repository()
         self.user_repository = manager.get_user_repository()
         self.scada_scheme_repository = manager.get_scada_scheme_repository()
+        self.logger = MEGA_LOGGER_40000(manager=manager)
+        self.user = user
 
     def run(self) -> None:
         operation = None
@@ -35,20 +40,26 @@ class ScadaTerminalClient:
             match operation:
                 case Command.CREATE_SCADA:
                     self.add_scada()
+                    self.logger.log(user=self.user, operation="CREATE")
 
                 case Command.SELECT_SCADA:
                     self.show_scadas()
+                    self.logger.log(user=self.user, operation="READ")
 
                 case Command.UPDATE_SCADA:
                     self.update_scada()
+                    self.logger.log(user=self.user, operation="UPDATE")
 
                 case Command.DELETE_SCADA:
                     self.delete_scada()
+                    self.logger.log(user=self.user, operation="DELETE")
 
                 case Command.SHOW_SCADA_USER:
                     self.show_scada_user()
+                    self.logger.log(user=self.user, operation="READ")
 
                 case Command.EXIT:
+                    self.logger.log(user=self.user, operation="EXIT")
                     return
 
                 case _:

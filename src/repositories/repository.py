@@ -10,6 +10,8 @@ from . import (
     ElementTypeRepository,
     ElementRepository,
     ConditionRepository,
+    OperationRepository,
+    LogRepository,
 )
 
 
@@ -43,3 +45,9 @@ class RepositoryManager:
 
     def get_conditions_repository(self):
         return ConditionRepository(self._connection)
+
+    def get_operation_repository(self):
+        return OperationRepository(self._connection)
+    
+    def get_log_repository(self):
+        return LogRepository(self._connection)

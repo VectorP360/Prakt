@@ -91,7 +91,7 @@ class ElementRepository:
                     workshop.workshop_id, workshop.name
             FROM element
                 JOIN element_type ON element.element_type_id = element_type.element_type_id
-                JOIN facility ON element.facility = facility.facility_id
+                JOIN facility ON element.facility_id = facility.facility_id
                 JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                 JOIN workshop ON facility.workshop_id = workshop.workshop_id
                 JOIN public.user on facility.facility_id = public.user.facility_id

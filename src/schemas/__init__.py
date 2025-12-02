@@ -7,6 +7,8 @@ from .workshop import WorkshopOut, WorkshopIn
 from .element_type import ElementTypeOut, ElementTypeIn
 from .element import ElementOut, ElementIn
 from .condition import ConditionsOut, ConditionsIn
+from .operation import OperationOut, OperationIn
+from .log import LogOut, LogIn
 
 
 __all__ = [
@@ -28,4 +30,8 @@ __all__ = [
     ElementIn,
     ConditionsIn,
     ConditionsOut,
+    OperationIn,
+    OperationOut,
+    LogIn,
+    LogOut
 ]

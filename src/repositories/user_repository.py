@@ -54,10 +54,10 @@ class UserRepository:
         cursor = self.__connection.cursor()
 
         cursor.execute(
-            """SELECT user_id, surname, user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
+            """SELECT user_id, surname, public.user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
                         workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
                         FROM public.user
-                        JOIN facility ON user.facility_id = facility.facility_id
+                        JOIN facility ON public.user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id
                             JOIN workshop ON facility.workshop_id = workshop.workshop_id
                         JOIN post USING (post_id)
@@ -201,7 +201,7 @@ class UserRepository:
 
         cursor.execute("""
                         SELECT user_id, surname, public.user.name, fathersname, facility.facility_id, facility.name, facility_type.facility_type_id, facility_type.name,
-                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password,
+                        workshop.workshop_id, workshop.name, post.post_id, post.name, hire_date, login, password
                         FROM public.user
                         JOIN facility ON public.user.facility_id = facility.facility_id
                             JOIN facility_type ON facility.type_id = facility_type.facility_type_id

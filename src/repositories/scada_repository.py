@@ -143,7 +143,7 @@ class ScadaSchemeRepository:
             """
         UPDATE scada_scheme SET name = %s, facility_id = %s WHERE scada_scheme_id = %s
         RETURNING scada_scheme_id, name, content;""",
-            (scada_in.name, scada_in.facility.facility_id, scada_scheme_id),
+            (scada_in.name, scada_in.facility.facility_id, scada_scheme_id,),
         )
 
         self.__connection.commit()
