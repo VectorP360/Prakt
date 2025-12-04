@@ -117,7 +117,7 @@ class ConditionRepository:
         else:
             return None
 
-    def get_all(self) -> Optional[list]:
+    def get_all(self) -> list:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -135,29 +135,21 @@ class ConditionRepository:
         fetched_row = cursor.fetchall()
 
         result = []
-        if fetched_row:
-            for cell in fetched_row:
-                founded_condition = ConditionsOut(
-                    condition_id=fetched_row[0],
-                    temperature=fetched_row[1],
-                    loading=fetched_row[2],
-                    pressure=fetched_row[3],
-                    facility=FacilityOut(
-                        facility_id=fetched_row[4],
-                        name=fetched_row[5],
-                        type=FacilityTypeOut(
-                            facility_type_id=fetched_row[6], name=fetched_row[7]
-                        ),
-                        workshop=WorkshopOut(
-                            workshop_id=fetched_row[8], name=fetched_row[9]
-                        ),
-                    ),
-                )
-
-                result.append(founded_condition)
-            return result
-        else:
-            return None
+        for row in fetched_row:
+            founded_condition = ConditionsOut(
+                condition_id=row[0],
+                temperature=row[1],
+                loading=row[2],
+                pressure=row[3],
+                facility=FacilityOut(
+                    facility_id=row[4],
+                    name=row[5],
+                    type=FacilityTypeOut(facility_type_id=row[6], name=row[7]),
+                    workshop=WorkshopOut(workshop_id=row[8], name=row[9]),
+                ),
+            )
+            result.append(founded_condition)
+        return result
 
     def update(
         self, condition_id: int, new_condition: ConditionsIn
