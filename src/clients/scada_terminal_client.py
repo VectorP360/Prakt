@@ -148,10 +148,13 @@ class ScadaTerminalClient:
             # А как насчет https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
             return
 
-    def get_scada_by_user(self, user_id) -> ScadaSchemeOut:
+    def get_scada_by_user(self, user_id: str) -> ScadaSchemeOut | None:
         scheme = self.scada_scheme_repository.get_by_user(user_id=user_id)
-        scada_opener = ScadaOpener()
-        scada_opener.open_in_browser(svg_code=scheme.content)
+        if scheme:
+            scada_opener = ScadaOpener()
+            scada_opener.open_in_browser(svg_code=scheme.content)
+
+        return None
 
     def update_scada(self):
         try:
@@ -176,12 +179,14 @@ class ScadaTerminalClient:
                     name=name, facility=facility_in, content=edit_schema.content
                 ),
             )
+            if upd_scheme:
+                scada_opener = ScadaOpener()
+                scada_opener.open_in_browser(svg_code=upd_scheme.content)
+                print(upd_scheme)
 
-            scada_opener = ScadaOpener()
-            scada_opener.open_in_browser(svg_code=upd_scheme.content)
-            print(upd_scheme)
-
-            input("Нажмите Enter что бы продолжить")
+                input("Нажмите Enter что бы продолжить")
+            else:
+                ...  # Обработай данный случай, пожалуйста
 
         except KeyboardInterrupt:
             print("Редактирование записи прервано!")
@@ -227,8 +232,10 @@ class ScadaTerminalClient:
             print("Схемы под указанным номером не обнаружено!")
             input("Нажмите Enter что бы продолжить")
             return
+        user = self.user_repository.get_by_scada(str(selected_schema.scheme_id))
+        
         print(
-            f"Пользователь, который на данный момент работает с этой scada схемой: {self.user_repository.get_by_scada(selected_schema.scheme_id)}"
+            f"Пользователь, который на данный момент работает с этой scada схемой: {user}"
         )
         input("Нажмите Enter что бы продолжить")
 

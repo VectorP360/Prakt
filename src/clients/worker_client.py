@@ -34,8 +34,11 @@ class WorkerClient:
                         user_id=str(self.user.user_id)
                     )
                     scada_opener = ScadaOpener()
-                    scada_opener.open_in_browser(svg_code=scada.content)
-                    self.logger.log(user=self.user, operation="READ")
+                    if scada:
+                        scada_opener.open_in_browser(svg_code=scada.content)
+                        self.logger.log(user=self.user, operation="READ")
+                    else:
+                        ... # Обработай данный случай, пожалуйста
 
                 case Command.SHOW_ELEMENT:
                     for founded_element in self.element_repository.get_by_user(
