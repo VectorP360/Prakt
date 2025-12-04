@@ -82,7 +82,7 @@ class ElementRepository:
         else:
             return None
 
-    def get_by_user(self, user_id: int) -> Optional[list]:
+    def get_by_user(self, user_id: int) -> list:
         cursor = self.__connection.cursor()
 
         cursor.execute(
@@ -99,28 +99,25 @@ class ElementRepository:
             """,
             (user_id,),
         )
-        fetched_row = cursor.fetchall()
+        fetched_rows = cursor.fetchall()
 
         result = []
-        if fetched_row:
-            for cell in fetched_row:
-                founded_element = ElementOut(
-                    element_id=cell[0],
-                    name=cell[1],
-                    material=cell[2],
-                    element_type=ElementTypeOut(element_type_id=cell[3], name=cell[4]),
-                    facility=FacilityOut(
-                        facility_id=cell[5],
-                        name=cell[6],
-                        type=FacilityTypeOut(facility_type_id=cell[7], name=cell[8]),
-                        workshop=WorkshopOut(workshop_id=cell[9], name=cell[10]),
-                    ),
-                )
+        for row in fetched_rows:
+            founded_element = ElementOut(
+                element_id=row[0],
+                name=row[1],
+                material=row[2],
+                element_type=ElementTypeOut(element_type_id=row[3], name=row[4]),
+                facility=FacilityOut(
+                    facility_id=row[5],
+                    name=row[6],
+                    type=FacilityTypeOut(facility_type_id=row[7], name=row[8]),
+                    workshop=WorkshopOut(workshop_id=row[9], name=row[10]),
+                ),
+            )
 
-                result.append(founded_element)
-            return result
-        else:
-            return None
+            result.append(founded_element)
+        return result
 
     def get_all(self) -> Optional[list]:
         cursor = self.__connection.cursor()
