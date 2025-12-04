@@ -10,6 +10,9 @@ class FacilityRepository:
     def __init__(self, connection: Connection):
         self.__connection = connection
 
+    def __from_row(**row):
+        pass
+
     def create(self, new_facility: FacilityIn) -> Optional[FacilityOut]:
         # README: Пару недель назад я обнаружил в Psycopg фичу, которая облегчает возврат строк из БД
 
@@ -53,10 +56,8 @@ class FacilityRepository:
         # ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣷⣶⣶⣶⣶⣶⣾⣿⣿⣿⣿⣿⣿
         # Погугли
 
-        cursor = self.__connection.cursor(row_factory=kwargs_row())
-
-        def from_row(**row):
-            pass
+        # cursor = self.__connection.cursor(row_factory=kwargs_row(self.__from_row))
+        cursor = self.__connection.cursor()
 
         cursor.execute(
             """
