@@ -31,7 +31,7 @@ class WorkerClient:
             match operation:
                 case Command.SHOW_SCADA:
                     scada = self.scada_scheme_repository.get_by_user(
-                        user_id=self.user.user_id
+                        user_id=str(self.user.user_id)
                     )
                     scada_opener = ScadaOpener()
                     scada_opener.open_in_browser(svg_code=scada.content)

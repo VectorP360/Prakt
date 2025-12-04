@@ -171,7 +171,7 @@ class ScadaTerminalClient:
                 return
 
             upd_scheme = self.scada_scheme_repository.update(
-                edit_schema.scheme_id,
+                str(edit_schema.scheme_id),
                 scada_in=ScadaSchemeIn(
                     name=name, facility=facility_in, content=edit_schema.content
                 ),
