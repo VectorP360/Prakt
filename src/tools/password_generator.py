@@ -17,6 +17,8 @@ class PasswordGenerator:
         used_numbers = False
         used_symbols = False
 
+        final_password = ""
+        
         while (
             not used_letters or not used_capital or not used_numbers or not used_symbols
         ):
