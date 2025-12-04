@@ -38,7 +38,7 @@ class ElementRepository:
                 name=fetched_row[1],
                 material=fetched_row[2],
                 element_type=element_in.element_type,
-                facility_id=element_in.facility,
+                facility=element_in.facility,
             )
         return None
 
